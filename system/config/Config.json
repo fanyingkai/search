@@ -1,0 +1,73 @@
+{
+    "588ku.com":{
+        "host":"588ku.com",
+        "port":"80",
+        "method":"GET",
+        "path":"${path}",
+        "headers":{
+            "Accept":"application/json, text/javascript, */*; q=0.01",
+            "Accept-Language":"zh-CN,zh;q=0.8",
+            "Connection":"keep-alive",
+            "Content-Type":"application/json",
+            "Host":"588ku.com",
+            "X-Requested-With":"XMLHttpRequest",
+            "User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36"
+        }
+    },
+    "90sheji.com":{
+        "host":"90sheji.com",
+        "port":"80",
+        "method":"POST",
+        "path":"http://90sheji.com/index.php?m=inspireAjax&a=getDownloadLink",
+        "headers":{
+            "Accept":"application/json, text/javascript, */*; q=0.01",
+            "Accept-Language":"zh-CN,zh;q=0.8",
+            "Connection":"keep-alive",
+            "Content-Length":"${Content-Length}",
+            "Host":"90sheji.com",
+            "Origin":"http://90sheji.com",
+            "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
+            "Referer":"http://90sheji.com/?m=Inspire&a=download&id=",
+            "X-Requested-With":"XMLHttpRequest",
+            "User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36"
+        }
+    },
+    "58pic.com":{
+        "host":"58pic.com",
+        "port":"80",
+        "method":"GET",
+        "path":"http://www.58pic.com/indexphp/download/",
+        "headers":{
+            "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language":"zh-CN,zh;q=0.8",
+            "Cache-Control":"max-age=0",
+            "Connection":"keep-alive",
+            "Host":"www.58pic.com",
+            "Pragma":"no-cache",
+            "Referer":"{Referer}",
+            "Upgrade-Insecure-Requests":"1",
+            "User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36"
+        }
+    },
+    "ooopic.com":{
+        "host":"downloads.ooopic.com",
+        "port":"80",
+        "method":"GET",
+        "path":"http://downloads.ooopic.com/free_download.php?id=",
+        "headers":{
+            "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language":"zh-CN,zh;q=0.8",
+            "Cache-Control": "max-age=0",
+            "Connection":"keep-alive",
+            "Host":"downloads.ooopic.com",
+            "Referer":"${Referer}",
+            "Upgrade-Insecure-Requests":"1",
+            "User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36"
+        }
+    },
+    "systemdata":{
+        "key":"112525",
+        "name":"xivistudio",
+        "passport":true
+    }
+}

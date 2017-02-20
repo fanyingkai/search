@@ -1,0 +1,20 @@
+{
+    "name":"sercar",
+    "version":"1.2",
+    "description":"搜索代理",
+    "main":"index.js",
+    "dependencies":{
+        "express":"*",
+        "socket.io":"*",
+        "head_body_buffers":"*",
+        "mongodb":"*",
+        "iconv-lite":"*",
+        "cheerio":"*"
+    },
+    "scripts":{
+        "test":""
+    },
+    "keywords":["搜索","图片","PSD"],
+    "author":"印盼",
+    "license":""
+}
