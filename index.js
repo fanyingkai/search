@@ -155,6 +155,7 @@ if (cluster.isMaster) {
                         })
                     }else
                     if(age.error != undefined){
+                        console.log(age)
                         process.send({
                             "id": age.id,
                             "sercar": age.error
@@ -236,8 +237,8 @@ if (cluster.isMaster) {
             socket.on('disconnect', () => {
                 // 将用户从连接池中剔除
                 let name = usersocket[socket.id]
-                usersocket[socket.id] = undefined
-                userlisten['name:' + name] = undefined
+                usersocket[socket.id] = null
+                userlisten['name:' + name] = null
             })
             
             // 下载计数
@@ -257,13 +258,11 @@ if (cluster.isMaster) {
         
             // 用户登录
             socket.on('login', (data) => {
-                let name, key
-                data = data.magess
-                name = data.name
+                const name = data.magess.name
                 // 如果是加密先解密
-                key = (typeof data.type !== 'undefined') ? component.decrypt(data.pass) : data.pass
+                const key = typeof data.magess.type !== 'undefined' && data.magess.type == 'password' ? component.decrypt(data.magess.pass) : data.magess.pass
                 // 连接key表
-                let dbKey = db.collection('passport')
+                const dbKey = db.collection('passport')
                 // 判断用户是否以连接
                 // 如果连接池存在链接  不接受新连接
                 // 查询用户passport信息
@@ -272,7 +271,7 @@ if (cluster.isMaster) {
                     // 有信息
                     // 密钥不为空
                     // 密钥正确
-                    if(docs.length != 0 && docs[0].key != undefined && docs[0].key == key && userlisten['name:' + name] == undefined){
+                    if(docs.length != 0 && docs[0].key != undefined && docs[0].key == key && userlisten['name:' + name] == null){
                         // 新建用户访问域
                         userlisten['name:' + name] = socket
                         usersocket[socket.id] = name

@@ -116,13 +116,61 @@ const app = {
                     }
                 }else
                 if(host == '888pic.com'){
-                    if(Headers.location){
+                    if(Headers.location != undefined){
                         const backhead = urL.parse(Headers.location)
-                        if(backhead.query){
+                        if(backhead.query != undefined){
                             if(backhead.query.includes('m=downVarify') == true){
-                                request('http://47.89.27.13/cookie-error?key=xivistudio&name=888pic&type=-44')
-                                CALLBACK({error:Ydz})
-                            }else{
+                                server.Request({ 
+                                    type:"GET", 
+                                    url:Headers.location, 
+                                    headers: {
+                                        "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                                        "Accept-Language":"zh-CN,zh;q=0.8,la;q=0.6",
+                                        "Cache-Control":"max-age=0",
+                                        "Connection":"keep-alive",
+                                        "DNT":1,
+                                        "Host":"888pic.com",
+                                        "Referer":Ydz,
+                                        "Cookie":_cookie,
+                                        "Upgrade-Insecure-Requests":1,
+                                        "User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+                                    }
+                                }, (_data) => {
+                                    let On = _data.toString()
+                                    if(On.includes('location.href = ') == true){
+                                        console.log(On)
+                                        console.log(On.split("'")[1])
+                                        server.Request({ 
+                                            type:"GET", 
+                                            url:On.split("'")[1], 
+                                            headers: {
+                                                "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                                                "Accept-Language":"zh-CN,zh;q=0.8,la;q=0.6",
+                                                "Cache-Control":"max-age=0",
+                                                "Connection":"keep-alive",
+                                                "DNT":1,
+                                                "Host":"888pic.com",
+                                                "Referer":Headers.location,
+                                                "Cookie":_cookie,
+                                                "Upgrade-Insecure-Requests":1,
+                                                "User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+                                            }
+                                        }, (_data) => {
+                                            let body = require('./code/888pic.js')
+                                            body(_data, (data) => {
+                                                if(data.error == 0){
+                                                    request('http://47.89.27.13/cookie-error?key=xivistudio&name=888pic&type=404')
+                                                    CALLBACK({error:URL})
+                                                }else
+                                                if(data.code != undefined){
+                                                    CALLBACK({code:data.code})
+                                                }
+                                            })
+                                        })
+                                    }
+                                })
+                            }else
+                            if(backhead.query.includes('.zip') == true){
                                 server.Request({ 
                                     type:"GET", 
                                     url: `http://888pic.com/?m=download&id=${app.nubmer(path)}`, 
@@ -144,12 +192,17 @@ const app = {
                                         CALLBACK({name:"888pic", link:Headers.location, snt:data.snt, title:data.title })
                                     })
                                 })
+                            }else{
+                                request('http://47.89.27.13/cookie-error?key=xivistudio&name=888pic&type=404')
+                                CALLBACK({error:URL})
                             }
                         }
                     }
                 }
             })
         }
+        
+        // rum
         if(protocol != null){
             if(host == '588ku.com'){
                 request('http://47.89.27.13/cookie?key=xivistudio&name=588ku', undefined, (cookie) => {

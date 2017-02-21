@@ -52,8 +52,7 @@ if (cluster.isWorker){
                     packet.write(msg, 4)
                     client.write(packet)
                 }else{
-                    console.log(data)
-                    let msg = JSON.stringify({"id":age.id, "error": data})
+                    let msg = JSON.stringify({"id":age.id, "error": data.href})
                     let packet = new Buffer(4 + Buffer.byteLength(msg))
                     packet.writeUInt32BE(Buffer.byteLength(msg), 0)
                     packet.write(msg, 4)
