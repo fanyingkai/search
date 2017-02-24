@@ -134,50 +134,54 @@ if(typeof Index === 'undefined'){
         socket.on('sercar-callback', function(data){
             var obj = (typeof data.magess !== 'object') ? JSON.parse(data.magess) : data.magess
             if(obj.error == undefined){
-                // 隐藏并停止loading动画
-                $('.loading').removeClass('loading-show')
-                // 显示缩略图
-                var SNT = $('.sercar-img').attr('style')
-                var background = 'background-image: url("' + obj.snt + '");'
-                if(SNT != background && obj.snt != undefined){
-                    $('.sercar-img').addClass('sercar-img-show').css('background-image','url(' + obj.snt　+ ')')
-                    $('.sercar-backgro').text(obj.title)
-                }
-                // 下载块往上
-                $('.sercar').addClass('sercar-top')
-                if(obj.name == "588ku"){
-                    if(obj.type == 'img'){
-                        $('#dowm-img').css({'opacity':1, 'z-index':3})
-                        $($('#dowm-img').parent('a')).unbind()
-                        $($('#dowm-img').parent('a')).attr('href', obj.link).click(function(){
-                            GetSum(obj.name)
-                        })
-                    }else
-                    if(obj.type == 'psd'){
-                        $('#dowm-psd').css({'opacity':1, 'z-index':3})
-                        $($('#dowm-psd').parent('a')).unbind()
-                        $($('#dowm-psd').parent('a')).attr('href', obj.link).click(function(){
-                            GetSum(obj.name)
-                        })
+                if(obj.code != undefined){
+                    
+                }else{
+                    // 隐藏并停止loading动画
+                    $('.loading').removeClass('loading-show')
+                    // 显示缩略图
+                    var SNT = $('.sercar-img').attr('style')
+                    var background = 'background-image: url("' + obj.snt + '");'
+                    if(SNT != background && obj.snt != undefined){
+                        $('.sercar-img').addClass('sercar-img-show').css('background-image','url(' + obj.snt　+ ')')
+                        $('.sercar-backgro').text(obj.title)
                     }
-                }else
-                if(obj.name == "90sheji"){
-                    // 判断为直接响应
-                    var _obj = JSON.parse(obj.link)
-                    if (_obj.success == 1 && _obj.link != undefined) {
+                    // 下载块往上
+                    $('.sercar').addClass('sercar-top')
+                    if(obj.name == "588ku"){
+                        if(obj.type == 'img'){
+                            $('#dowm-img').css({'opacity':1, 'z-index':3})
+                            $($('#dowm-img').parent('a')).unbind()
+                            $($('#dowm-img').parent('a')).attr('href', obj.link).click(function(){
+                                GetSum(obj.name)
+                            })
+                        }else
+                        if(obj.type == 'psd'){
+                            $('#dowm-psd').css({'opacity':1, 'z-index':3})
+                            $($('#dowm-psd').parent('a')).unbind()
+                            $($('#dowm-psd').parent('a')).attr('href', obj.link).click(function(){
+                                GetSum(obj.name)
+                            })
+                        }
+                    }else
+                    if(obj.name == "90sheji"){
+                        // 判断为直接响应
+                        var _obj = JSON.parse(obj.link)
+                        if (_obj.success == 1 && _obj.link != undefined) {
+                            $('#dowm-auto').css({'opacity':1, 'z-index':3})
+                            $($('#dowm-auto').parent('a')).unbind()
+                            $($('#dowm-auto').parent('a')).attr('href', _obj.link).click(function(){
+                                GetSum(obj.name)
+                            })
+                        }
+                    }else
+                    if(obj.name == "888pic"){
                         $('#dowm-auto').css({'opacity':1, 'z-index':3})
                         $($('#dowm-auto').parent('a')).unbind()
-                        $($('#dowm-auto').parent('a')).attr('href', _obj.link).click(function(){
+                        $($('#dowm-auto').parent('a')).attr('href', obj.link).click(function(){
                             GetSum(obj.name)
                         })
                     }
-                }else
-                if(obj.name == "888pic"){
-                    $('#dowm-auto').css({'opacity':1, 'z-index':3})
-                    $($('#dowm-auto').parent('a')).unbind()
-                    $($('#dowm-auto').parent('a')).attr('href', obj.link).click(function(){
-                        GetSum(obj.name)
-                    })
                 }
             }else{
                 Index.Notification('下载超量','您今日已超最大下载量 50 次，请休息一下')

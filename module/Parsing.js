@@ -3,6 +3,8 @@ const fs = require('fs')
 const http = require('http')
 const urL = require('url')
 const request = require('./request.js')
+let switchChannel = true
+
 const app = {
     nubmer: (PATH) => {
         let SumArray = PATH.match(/\d/g)
@@ -119,6 +121,7 @@ const app = {
                     if(Headers.location != undefined){
                         const backhead = urL.parse(Headers.location)
                         if(backhead.query != undefined){
+                            console.log(Headers.location)
                             if(backhead.query.includes('m=downVarify') == true){
                                 server.Request({ 
                                     type:"GET", 
@@ -137,9 +140,8 @@ const app = {
                                     }
                                 }, (_data) => {
                                     let On = _data.toString()
+                                    console.log(On)
                                     if(On.includes('location.href = ') == true){
-                                        console.log(On)
-                                        console.log(On.split("'")[1])
                                         server.Request({ 
                                             type:"GET", 
                                             url:On.split("'")[1], 
@@ -163,9 +165,22 @@ const app = {
                                                     CALLBACK({error:URL})
                                                 }else
                                                 if(data.code != undefined){
+                                                    switchChannel = false
                                                     CALLBACK({code:data.code})
                                                 }
                                             })
+                                        })
+                                    }else{
+                                        let body = require('./code/888pic.js')
+                                        body(_data, (data) => {
+                                            if(data.error == 0){
+                                                request('http://47.89.27.13/cookie-error?key=xivistudio&name=888pic&type=404')
+                                                CALLBACK({error:URL})
+                                            }else
+                                            if(data.code != undefined){
+                                                switchChannel = false
+                                                CALLBACK({code:data.code})
+                                            }
                                         })
                                     }
                                 })
@@ -246,7 +261,7 @@ const app = {
                     }, href, cookie)
                 })
             }else
-            if(host == '888pic.com'){
+            if(host == '888pic.com' && switchChannel == true){
                 request('http://47.89.27.13/cookie?key=xivistudio&name=888pic', undefined, (cookie) => {
                     index({ 
                         type:"GET", 

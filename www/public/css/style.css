@@ -140,3 +140,12 @@ a:hover {text-decoration:none;}
 .sercar-type-show {opacity:1;}
 #dowm-auto {width:100%;left:0;}
 .sercar-backgro {width: 100%;height: 2em;text-align: left;color: #00b150;}
+.code {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background: rgba(255,255,255,0.8);
+    top:0;
+    left: 0;
+}
