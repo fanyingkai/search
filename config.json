@@ -1,0 +1,14 @@
+{
+    "tcpPort":"8080",
+    "httpPort":"85",
+    "mongodb":"mongodb://127.0.0.1:3306/db",
+    "log":"/Node.log",
+    "websocket":"88",
+    "error":"/Error.log",
+    "admin":{
+        "name":"AdminRoot",
+        "key":"pushkey888"
+    },
+    "adminpath":"/admin/xivi",
+    "index":"47.89.27.13"
+}

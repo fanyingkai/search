@@ -1,1 +1,1 @@
-node %CD%/app
+node %CD%/index

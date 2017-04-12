@@ -22,8 +22,8 @@ let app = (request, headers, callback) => {
             bufLength += data.length
         })
         response.on('end', () => {
-            let chunkAll = Buffer.concat(arrBuf, bufLength)
-            callback(chunkAll.toString())
+            const chunkAll = Buffer.concat(arrBuf, bufLength)
+            callback && callback(chunkAll.toString())
         })
         req.on('error', (e) => {
             console.log(e.message)

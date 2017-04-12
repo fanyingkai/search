@@ -1,8 +1,12 @@
 const cheerio = require('cheerio')
 
-module.exports = (data, callback) => {
+module.exports = (data, head, name, backhead, callback) => {
     const html = data.toString()
-     console.log(html)
+    const cookie = () => {
+        const ck = head['set-cookie'][1]
+        const id = ck.split(';')[0]
+        return id
+    }
     if(html.includes('当前下载人数过多，服务器繁忙，请等候5分钟') == true){
         callback({error:0})
     }else{
@@ -18,7 +22,10 @@ module.exports = (data, callback) => {
                 callback({code:{
                     title:title,
                     imgarr:arr,
-                    keyarr:key
+                    keyarr:key,
+                    key:cookie(),
+                    id:name,
+                    backhead:backhead
                 }})
             }
         }

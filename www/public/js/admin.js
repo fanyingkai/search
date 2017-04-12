@@ -1,423 +1,696 @@
-    var ADMIN = {
-        // 用户模块
-        user: {
-            // 权限
-            permissions: function(data) {
-                var perm = ''
-                for (var c = 0, d = data; c < d.length; c++) {
-                    if (d[c] == '588ku') { perm += '千库,' } else if (d[c] == '90sheji') { perm += '90设计,' } else if (d[c] == '58pic') {perm += '千图,'} else if (d[c] == 'ooopic') {perm += '我图,'}
-                    if (c == d.length - 1) {
-                        return perm.slice(0, perm.length - 1)
-                    }
-                }
-            },
-            // 用户有效期
-            usertime: function(time) {
-                var myDate = new Date(), n = myDate.getFullYear(), y = myDate.getMonth(), r = myDate.getDate();
-                if (time != undefined) {
-                    var dataT = time.split('-');
-                    if(dataT[0] - '' > n){
-                        return 'admin-user-li '
-                    }else{
-                        if(dataT[1] - '' > y + 1){
-                            return 'admin-user-li '
-                        }else{
-                            if(dataT[2] - '' > r){
-                                return 'admin-user-li '
-                            }else{
-                                return 'admin-user-li admin-user-li-error'
-                            }
-                        }
-                    }
-                }else{
-                    return 'admin-user-li'
-                }
-            },
-            // 用户信息编辑
-            edit: function() {
-                // 点击单个用户
-                $('.admin-user-li').click(function(Event) {
-                    // 判断点击不是 checkbox
-                    if($(Event.target).attr('type')  != 'checkbox'){
-                        var id = $(this).attr('id');
-                        // 从存储中提取数据
-                        var userdata = JSON.parse(sessionStorage['userdata_' + id]);
-                        // 填充数据
-                        $('.admin-user-data').addClass('admin-user-data-on').attr('name', 'edit');
-                        $('#admin-user-data-id').html('帐号:<span>' + userdata.id + '</span>').attr('name', userdata.id);
-                        $('#admin-user-data-key')[0].value = userdata.key;
-                        // 有效期
-                        if (userdata.time != undefined) {
-                            var time = userdata.time.split('-');
-                            $('#damin-user-data-time-n')[0].value = time[0];
-                            $('#damin-user-data-time-y')[0].value = time[1];
-                            $('#damin-user-data-time-r')[0].value = time[2];
-                        }
-                        // 权限
-                        var pemr = $('.damin-user-data-li').find('input');
-                        for (var a = 0; a < userdata.permissions.length; a++) {
-                            var name = userdata.permissions[a];
-                            for (var b = 0; b < pemr.length; b++) {
-                                if ($(pemr[b]).attr('name') == name) {
-                                    $(pemr[b])[0].checked = true;
-                                }
-                            }
-                        }
-                    }
-                });
-                // 退出编辑
-                $('#damin-user-data-quit').click(function() {
-                    $('.admin-user-data').removeClass('admin-user-data-on');
-                    $('#admin-user-data-key')[0].value = '';
-                    // 清除数据
-                    var pemr = $('.damin-user-data-li').find('input');
-                    for (var b = 0; b < pemr.length; b++) {
-                        $(pemr[b])[0].checked = false;
-                    }
-                    $('#damin-user-data-time-n')[0].value = '';
-                    $('#damin-user-data-time-y')[0].value = '';
-                    $('#damin-user-data-time-r')[0].value = '';
-                });
-                // 确认
-                $('#damin-user-data-ok').click(function() {
-                    // id
-                    var id = function(){
-                        if($('.admin-user-data').attr('name') == 'edit'){
-                            return $('#admin-user-data-id').attr('name');
-                        }else
-                        if($('.admin-user-data').attr('name') == 'new'){
-                            return $('#admin-user-data-name').val();
-                        };
-                    };
-                    // key
-                    var key = $('#admin-user-data-key').val();
-                    // time
-                    var time = function() {
-                        var n = $('#damin-user-data-time-n').val();
-                        var y = $('#damin-user-data-time-y').val();
-                        var r = $('#damin-user-data-time-r').val();
-                        return n + '-' + y + '-' + r;
-                    };
-                    // permissions
-                    var pemr = function() {
-                        var ayyr = [];
-                        var pemr = $('.damin-user-data-permissions').find('input');
-                        for (var a = 0; a < pemr.length; a++) {
-                            if ($(pemr[a])[0].checked == true) {
-                                ayyr.push($(pemr[a]).attr('name'));
-                            }
-                            if (a == pemr.length - 1) {
-                                return ayyr;
-                            }
-                        }
-                    };
-                    // 用户数据
-                    var userDATA = {
-                        id: id(),
-                        key: key,
-                        time: time(),
-                        permissions: pemr()
-                    };
-                    // 编辑信息
-                    if($('.admin-user-data').attr('name') == 'edit'){
-                        socket.emit('useredit', {magess: userDATA});
-                        socket.on('useredit-callback', function(data) {
-                            if (data.magess != false) {
-                                $('.admin-user-data').removeClass('admin-user-data-on');
-                                $('#admin-user-data-key')[0].value = '';
-                                var pemr = $('.damin-user-data-li').find('input');
-                                for (var b = 0; b < pemr.length; b++) {
-                                    $(pemr[b])[0].checked = false;
-                                }
-                                $('#damin-user-data-time-n')[0].value = '';
-                                $('#damin-user-data-time-y')[0].value = '';
-                                $('#damin-user-data-time-r')[0].value = '';
-                                if($('#' + data.magess).length != 0){
-                                    var dom = $('#' + data.magess);
-                                    if($(dom).attr('class')  == 'admin-user-li' || 'admin-user-li-error'){
-                                        $(dom).html('<span class="admin-user-name"><input type="checkbox">' + userDATA.id + '</span><span class="admin-user-key">' + userDATA.key + '</span><span class="admin-user-pem">' + ADMIN.user.permissions(userDATA.permissions) + '</span><span class="admin-user-time">' + userDATA.time + '</span>');
-                                    }
-                                }
-                            }
-                        });
-                    }else
-                    // 新建用户
-                    if($('.admin-user-data').attr('name') == 'new'){
-                        socket.emit('instuser', {magess: userDATA});
-                        socket.on('instuser-callback', function(data){
-                            if(data.magess == true){
-                                alert('成功');
-                            }else
-                            if(data.magess == false){
-                                alert('失败');
-                            }
-                        })
-                    };
-                });
-            },
-            // 用户信息列表
-            tab:function(data){
-                if (data.magess.length != 0) {
-                    $('.admin-user').html('');
-                    var userData = data.magess;
-                    for (var a = 0; a < userData.length; a++) {
-                        // 单个用户信息
-                        var dataLI = userData[a];
-                        sessionStorage['userdata_' + dataLI.id] = JSON.stringify(dataLI);
-                        // 写入节点
-                        if (dataLI.id.search(/@/i) < 0 && $('#' + dataLI.id).length == 0) {
-                            var time = (dataLI.time != undefined) ? dataLI.time : '0';
-                            var newdom = '<div class="' + ADMIN.user.usertime(dataLI.time) + '" id="' + dataLI.id + '"><span class="admin-user-name"><input type="checkbox">' + dataLI.id + '</span><span class="admin-user-key">' + dataLI.key + '</span><span class="admin-user-pem">' + ADMIN.user.permissions(dataLI.permissions) + '</span><span class="admin-user-time">' + time + '</span></div>';
-                            var dom = $('.admin-user').html();
-                            $('.admin-user').html(dom + newdom);
-                        }
-                        if (a == userData.length - 1) {
-                            ADMIN.user.edit();
-                        }
-                    }
-                }
-                if (data.magess.length < 30){
-                    $('#admin-user-tab-bottem').attr('name', 'end');
-                }
-            }
-        },
-        // cookie
-        cookie:{
-            li:function(id){
-                var cookie = JSON.parse(sessionStorage.COOKIEARRAY);
-                $('.admin-cookie-ul').html('');
-                for(var a = 0; a<cookie.length; a++){
-                    var data = cookie[a];
-                    if(data.obj == id){
-                        sessionStorage['cookie_' + data.user] = JSON.stringify(data);
-                        var dom = '<div class="admin-cookie-li" id="' + data.user + '"><span class="admin-cookie-li-name"><input type="text"  id="admin-cookie-li-id"></span><span class="admin-cookie-li-cookie"><input type="text"  id="admin-cookie-li-cookie"><div class="admin-cookie-li-edit"><button id="admin-cookie-li-ok" name="' + data.user     + '">确定</button><button id="admin-cookie-li-del" name="' + data.user + '">删除</button></div></span></div>';
-                        document.getElementsByClassName('admin-cookie-ul')[0].innerHTML += dom;
-                    }
-                    if(a == cookie.length -1){
-                        for(var a = 0; a<cookie.length; a++){
-                            var data = cookie[a];
-                            if(data.obj == id){
-                                $($('#' + data.user).find('#admin-cookie-li-id'))[0].value = data.user;
-                                $($('#' + data.user).find('#admin-cookie-li-cookie'))[0].value = data.data;
-                            }
-                            if(a == cookie.length - 1){
-                                $('.admin-cookie-li-edit #admin-cookie-li-ok').click(function(){
-                                    var id = $(this).attr('name'); 
-                                    var data = JSON.parse(sessionStorage['cookie_' + id]);
-                                    data.data = $($('#' + id).find('#admin-cookie-li-cookie')).val();
-                                    data.user = $($('#' + id).find('#admin-cookie-li-id')).val();
-                                    socket.emit('upcookie', {magess:data});
-                                    socket.on('upcookie-callback', function(_data){
-                                        if(_data.magess == true){
-                                            $($('#' + id).find('#admin-cookie-li-cookie'))[0].value = data.data;
-                                            $($('#' + id).find('#admin-cookie-li-id'))[0].value = data.user;
-                                        }
-                                    });
-                                });
-                                $('.admin-cookie-li-edit #admin-cookie-li-del').click(function(){
-                                    alert('暂不支持');
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    };
+"use strict"
 
+if (typeof Admin == 'undefined') {
 
+    const Admin = new Object()
 
-
-    $('#admin-cookiegl').hide();
-    // 用户信息
-    socket.emit('user', {magess: {skip: 0, limit: 31}});
-    socket.on('user-callback', function(data) {
-        ADMIN.user.tab(data);
-    });
-    // mune
-    $('.admin-title button').click(function(){
-        var name = $(this).attr('name');
-        if(name == 'off'){
-            $('#admin-cookiegl').show();
-            $('#admin-zhgl').show();
-            $(this).attr('name', 'on');
-            $('#admin-cookiegl').click(function(){
-                $('#admin-zhgl').hide();
-                $(this).attr('name', 'off');
-                $('.admin-title').attr('name', 'cookie');
-                $('.admin-body').attr('id','');
-                $('.admin-cookie').attr('id','admin-html-on');
-            });
-            $('#admin-zhgl').click(function(){
-                $('#admin-cookiegl').hide();
-                $(this).attr('name', 'off');
-                $('.admin-title').attr('name', 'zh');
-                $('.admin-body').attr('id','admin-html-on');
-                $('.admin-cookie').attr('id','');
-            });
-        }else{
-            var id = $('.admin-title').attr('name');
-            if(id == 'zh'){
-                $('#admin-cookiegl').hide();
-                $(this).attr('name', 'off');
-            }else
-            if(id == 'cookie'){
-                $('#admin-zhgl').hide();
-                $(this).attr('name', 'off');
-            };
-        };
-    });
-    // 数据分页
-    // 上一页
-    $('#admin-user-tab-top').click(function(){
-        var tab = $('.admin-user-tab-body').attr('name') - '';
-        if(tab != 1){
-            var limit = tab - 1;
-            var skip = function(){
-                if(limit == 1){
-                    return 0;
-                }else{
-                    var a = limit - 2;
-                    if(a == 0){
-                        return 31;
-                    }else{
-                        return a * 31;
-                    }
-                }
-            };
-            socket.emit('user', {magess: {skip: skip(), limit: 31}});
-            $('.admin-user-tab-body').attr('name', limit);
+    // ======>>> 控制器
+    
+    // 弹窗组件
+    const PopupWindow = new Object()
+    PopupWindow.Exit = function() {
+        $('.admin-PopupWindow-body p').text('')
+        $('.admin-PopupWindow').removeClass('admin-PopupWindow-on')
+        $('.admin-PopupWindow-home').removeClass('admin-PopupWindow-home-on')
+        $('.admin-PopupWindow').removeClass('admin-PopupWindow-on')
+        $('.admin-PopupWindow-home').removeClass('admin-PopupWindow-home-on')
+        $('.admin-PopupWindow-newuser').removeClass('admin-PopupWindow-data-on')
+        $('.damin-PopupWindow-newcookie').removeClass('admin-PopupWindow-data-on')
+        $('.admin-PopupWindow-newuser-name').val('')
+        $('.admin-PopupWindow-newuser-key').val('')
+        $('.admin-PopupWindow-newuser-time').val('')
+        const dom = $('.damin-admin-PopupWindow-newuser-qx input')
+        for(let i of dom){
+            $(i)[0].checked == false
         }
-    })
-    // 下一页
-    $('#admin-user-tab-bottem').click(function(){
-        var tab = $('.admin-user-tab-body').attr('name') - '';
-        var skip = tab * 31;
-        var limit = tab + 1;
-        if($('#admin-user-tab-bottem').attr('name') != 'end'){
-            socket.emit('user', {magess: {skip: skip, limit: 31}});
-            $('.admin-user-tab-body').attr('name', limit);
-        }
-    })
-    // 删除帐号
-    $('#userdata-del').click(function(){
-        var dom = $('.admin-user-li');
-        for(var a = 0; a < dom.length; a ++){
-            var tab = $(dom[a]).find('input');
-            if($(tab)[0].checked == true){
-                socket.emit('deluser', {magess: $(dom[a]).attr('id')});
-            };
-        };
-        socket.on('deluser-callback', function(data){
-            if(data.magess != false){
-                $('#'+ data.magess).remove();
-            };
-        });
-    });
-    // 全选
-    $('#userdata-all').click(function(){
-        if($(this)[0].checked == true){
-            check(true);
-        }else{
-            check(false);
-        }
-        function check(tb){
-            var dom = $('.admin-user-li');
-            for(var a = 0; a < dom.length; a ++){
-                var tab = $(dom[a]).find('input');
-                $(tab)[0].checked = tb;
-            };
-        };
-    });
-    // 新建帐号
-    $('#userdata-new').click(function(){
-        $('.admin-user-data').addClass('admin-user-data-on').attr('name', 'new');
-        $('#admin-user-data-id').html('帐号:<span><input type="text"  id="admin-user-data-name"></span>');
-    });
-    // 批量删除
-    $('#admin-userdata-sumnew-on').click(function(){
-        var text = $('#admin-userdata-sumnew-txt').val();
-        var tabarray = text.split('帐号');
-        for(var a=0; a < tabarray.length; a ++){
-            socket.emit('deluser', {magess: tabarray[a]});
-            socket.on('deluser-callback', function(data){
-                if(data.magess == false){
-                    alert('错误');
-                }
-            })
-        };
-    });
-    // cookie信息
-    socket.emit('cookiearray');
-    socket.emit('cookie');
-    socket.on('cookiearray-callback', function(data){
-        sessionStorage.COOKIEARRAY = JSON.stringify(data.magess);
-        // 千库cookie
-        ADMIN.cookie.li('588ku');
-    });
-    socket.on('cookie-callback', function(data){
-        sessionStorage.COOKIE = JSON.stringify(data.magess);
-    });
-    // 新建cookie
-    $('#admin-cookie-li-newok').click(function(){
-        var user = $('.admin-cookie-data #admin-cookie-li-id').val();
-        var data = $('.admin-cookie-data #admin-cookie-li-cookie').val();
-        var type = $('.admin-cookie-data').attr('name');
-        socket.emit('inst-cookie', {magess:{
-            id:type,
-            cookie:data,
-            user:user
-        }});
-        socket.on('inst-cookie-callback', function(data){
-            if(data.magess == true){
-                alert('成功')
+    }
+    PopupWindow.To = (text, callback)=>{
+        $('.admin-PopupWindow-text p').text(text)
+        $('.admin-PopupWindow').addClass('admin-PopupWindow-on')
+        $('.admin-PopupWindow-home').addClass('admin-PopupWindow-home-on')
+        $('.admin-PopupWindow-text').addClass('admin-PopupWindow-data-on')
+        $('.admin-PopupWindow-body-xz button').unbind()
+        $('.admin-PopupWindow-body-xz button').click(function() {
+            const type = $(this).attr('data')
+            if(type == 'ok'){
+                callback(true)
             }else{
-                alert('失败')
+                PopupWindow.Exit()
             }
         })
-    });
-    // 切换cookie
-    $('.admin-cookie-title button').click(function(){
-        var name = $(this).attr('name')
-        ADMIN.cookie.li(name);
-        $('.admin-cookie-data').attr('name', name);
-    })
-    // 接受cookie错误信息
-    socket.on('Request-error-callback', function(data){
-        var type = function(id){
-            if(id == -1){
-                return '未知类型'
-            }else
-            if(id == -3){
-                return '需要确认验证码'
-            }else
-            if(id == 404){
-                return 'COOKIE失效'
-            }else
-            if(id == 'error'){
-                return '帐号被封'
-            }else
-            if(id == -14 || -12){
-                return '帐号繁忙,自动跳过'
+    }
+    PopupWindow.NewUser = (callback)=>{
+        $('.admin-PopupWindow').addClass('admin-PopupWindow-on')
+        $('.admin-PopupWindow-home').addClass('admin-PopupWindow-home-on')
+        $('.admin-PopupWindow-newuser').addClass('admin-PopupWindow-data-on')
+        $('.admin-PopupWindow-body-xz button').unbind()
+        $('.admin-PopupWindow-body-xz button').click(function() {
+            const type = $(this).attr('data')
+            const name = $('.admin-PopupWindow-newuser-name').val()
+            const key = $('.admin-PopupWindow-newuser-key').val()
+            const time = $('.admin-PopupWindow-newuser-time').val()
+            const qx = ()=>{
+                const dom = $('.damin-admin-PopupWindow-newuser-qx input')
+                let arr = []
+                for(let i = 0; i < dom.length; i++){
+                    const j = $(dom[i])
+                    if(j[0].checked == true){
+                        arr.push($(j).attr('data'))
+                    }
+                    if(i == dom.length - 1){
+                        return arr
+                    }
+                }
+            }
+            if(type == 'no'){
+                PopupWindow.Exit()
+            }else 
+            if(type == 'ok'){
+                if(name != '' && name.search(/@/i) < 0 && key != '' && time != '' && time.search(/-/i) == 4){
+                    callback({id: name,key: key,time: time,permissions: qx(),RegisTime: Index.GetTime()})
+                }else{
+                    Index.Notification.To('新建用户', 'info', '请正确填写相关信息！')
+                }
+            }
+        })
+    }
+    PopupWindow.NewCookie = (callback) => {
+        $('.admin-PopupWindow').addClass('admin-PopupWindow-on')
+        $('.admin-PopupWindow-home').addClass('admin-PopupWindow-home-on')
+        $('.damin-PopupWindow-newcookie').addClass('admin-PopupWindow-data-on')
+        $('.admin-PopupWindow-body-xz button').unbind()
+        $('.admin-PopupWindow-body-xz button').click(function() {
+            const type = $(this).attr('data')
+            const name = $('#damin-admin-PopupWindow-newcookie-data-type')[0].value
+            const data = $('.admin-PopupWindow-newcookie-data').val()
+            if(type == 'no'){
+                PopupWindow.Exit()
+            }else 
+            if(type == 'ok'){
+                if(data != ''){
+                    callback({name: name, data: data})
+                }else{
+                    Index.Notification.To('新建Cookie', 'info', '请正确填写相关信息！')
+                }
+            }
+        })
+    }
+    
+
+    // 首页
+    Admin['admin-home'] = (socket)=>{
+        const space = {"space_name": '.admin-pace-new',"space_size": '.admin-pace-old',"space_used_size": '.admin-pace-code',"space_available_size": '.admin-pace-map',"physical_space_size": '.admin-pace-large'}
+        const name = {"new_space": '新生代',"old_space": '老生代',"code_space": '程序空间',"map_space": '映射空间',"large_object_space": '大对象空间'}
+        const arr = ['space_name', 'space_size', 'space_used_size', 'space_available_size', 'physical_space_size']
+        // 定时请求
+        const ServerSpace = setInterval(()=>{
+            socket.emits('ServerSpace')
+            if($('.admin-home').attr('id') != 'damin-on'){
+                clearInterval(ServerSpace)
             }
         }
-        var name = function(id){
-            if(id == '588ku'){
-                return '千库'
-            }else
-            if(id == '90sheji'){
-                return '90设计'
+        , 5000)
+        // 堆栈信息
+        socket.on('ServerSpace_callback', (msg)=>{
+            const data = msg.magess
+            const body = $('.damin-server-pace')
+            for(let i = 0; i < body.length; i++){
+                const tab = data[i]
+                const div = body[i]
+                for(let name_i of arr){
+                    if(name_i == 'space_name'){
+                        $($(div).find(space['space_name'])).text(name[tab.space_name])
+                    }else{
+                        $($(div).find(space[name_i])).text(tab[name_i])
+                    }
+                }
+            }
+        })
+        // 系统信息
+        socket.emits('GetServerDate', {magess: true})
+        socket.on('GetServerDate_callback', (mag)=>{
+            const data = mag.magess
+            sessionStorage.SystemData = JSON.stringify(data)
+            const ram = (sum)=>{
+                return Math.round(sum / 1024 / 1024 / 1024)
+            }
+            $('#admin-index-dowmload').text(data.zx)
+            $('#admin-index-bug').text(data.bug)
+            $('#admin-index-cache').text(data.cache)
+            $('#admin-index-user').text(data.user)
+            $('#admin-index-cpu').text(data.cpu[0].model + ' X ' + data.cpu.length)
+            $('#admin-index-sumRam').text(ram(data.sumRam) + 'GB')
+            $('#admin-index-idleRam').text(ram(data.idleRam) + 'GB')
+            $('#admin-index-operatingSystem').text(data.operatingSystem)
+            $('#admin-index-runTime').text(Math.round(data.runTime / 60 / 60) + '小时')
+            $('#server-config-httpPort')[0].value = data.config.httpPort
+            $('#server-config-websocket')[0].value = data.config.websocket
+            $('#server-config-mongodb')[0].value = data.config.mongodb
+            $('#server-config-tcpPort')[0].value = data.config.tcpPort
+            $('#server-config-adminpath')[0].value = data.config.adminpath
+            $('#server-config-adminname')[0].value = data.config.admin.name
+            $('#server-config-adminkey')[0].value = data.config.admin.key
+            $('#admin-server-config-edit').unbind()
+            $('#admin-server-config-edit').click(function(){
+                PopupWindow.To(`确认修改服务器配置?`, (type)=>{
+                    if(type == true){
+                        data.config.httpPort = $('#server-config-httpPort')[0].value
+                        data.config.websocket = $('#server-config-websocket')[0].value
+                        data.config.mongodb = $('#server-config-mongodb')[0].value
+                        data.config.tcpPort = $('#server-config-tcpPort')[0].value
+                        data.config.adminpath = $('#server-config-adminpath')[0].value
+                        data.config.admin.name = $('#server-config-adminname')[0].value
+                        data.config.admin.key = $('#server-config-adminkey')[0].value
+                        socket.emits('EditConfig', {magess:data.config})
+                        socket.emits('GetServerDate', {magess: true})
+                        PopupWindow.Exit()
+                        socket.emits('RestartWorker', {Restart:true})
+                    }
+                })
+            })
+            $('.System-Start').click(function(){
+                PopupWindow.To(`确认重启服务器进程吗?`, (type)=>{
+                    if(type == true){
+                        socket.emits('RestartWorker', {Restart:true})
+                        PopupWindow.Exit()
+                    }
+                })
+            })
+        })
+    }
+
+    
+    // 用户管理
+    Admin['admin-user'] = (socket)=>{
+        // 每页显示数
+        let TableLimit = 10
+        const TabLimit = function() {
+            const val = $('#table-view-sum')[0].value
+            if(val == '显示条数'){
+                TableLimit = 10
+            } else {
+                TableLimit = val - ''
             }
         }
-        var Body = name(data.magess.data) + " NO: " + data.magess.id + "\n 类型 : " + type(data.magess.type) 
-        if (Notification.permission === "granted") {
-            var notification = new Notification("帐号错误", {"icon":"/img/wolii.png", "body": Body})
-        }else 
-        if (Notification.permission !== 'denied') {
-            Notification.requestPermission(function (permission) {
-                if (permission === "granted") {
-                    var notification = new Notification("帐号错误", {"icon":"/img/wolii.png", "body": Body})
+        // 写入翻页控件
+        const setTableLimit = ()=>{
+            $('.table-magnass').html(function() {
+                const user = Math.ceil($('#admin-index-user').text() / TableLimit)
+                let button = new String()
+                for(let i = 0; i < user; i++){
+                    button += `<div class="table-magnass-body-button click-on" value="${i + 1}"  id="${i == 0 ? 'table-magnass-body-button-on' : ''}">${i + 1}</div>`
+                    if(i == user - 1){
+                        return `<div class="table-magnass-body" data="0" max="${user}"><div class="table-magnass-body-button click-on" id="table-magnass-body-button-no" data="previous">上一页</div>${button}<div class="table-magnass-body-button click-on" ${$('#admin-index-user').text() / TableLimit == 1 ? 'id="table-magnass-body-button-no"' : ''} data="next">下一页</div></div>`
+                    }
+                }
+            })
+            // 翻页控件翻页动作
+            $('.table-magnass-body div').unbind()
+            $('.table-magnass-body div').click(function() {
+                const Tablimit = TableLimit
+                const data = $(this).attr('data')
+                const value = $(this).attr('value')
+                const id = $(this).attr('id')
+                const i = $('.table-magnass-body').attr('data') - ''
+                const tableValue = (k)=>{
+                    const max = $('.table-magnass-body').attr('max')
+                    const dom = $('.table-magnass-body div')
+                    for(let l of dom){
+                        if ($(l).attr('data') != 'previous' && $(l).attr('data') != 'next') {
+                            const q = $(l).attr('value')
+                            if(q == k){
+                                $(l).attr('id', 'table-magnass-body-button-on')
+                            }else{
+                                $(l).attr('id', '')
+                            }
+                        }else{
+                            if(k == 1 && $(l).attr('data') == 'previous'){
+                                $(l).attr('id', 'table-magnass-body-button-no')
+                            }else 
+                            if(k == max && $(l).attr('data') == 'next'){
+                                $(l).attr('id', 'table-magnass-body-button-no')
+                            }else{
+                                $(l).attr('id', '')
+                            }
+                        }
+                    }
+                }
+                if(data != undefined && data != ''){
+                    if(data == 'previous'){
+                        if (id != 'table-magnass-body-button-no') {
+                            const j = i - 1
+                            socket.emits('User', {magess: {skip: j * Tablimit,limit: Tablimit}})
+                            $('.table-magnass-body').attr('data', j)
+                            $(this).attr('id', '')
+                            tableValue(j + 1)
+                        }
+                    }else 
+                    if(data == 'next'){
+                        if(id != 'table-magnass-body-button-no'){
+                            const j = i + 1
+                            socket.emits('User', {magess: {skip: j * Tablimit,limit: Tablimit}})
+                            $('.table-magnass-body').attr('data', j)
+                            tableValue(j + 1)
+                        }
+                    }
+                }else 
+                if(value != undefined && value != ''){
+                    tableValue(value - '')
+                    const j = value - '' - 1
+                    socket.emits('User', {magess: {skip: j * Tablimit,limit: Tablimit}})
+                    $('.table-magnass-body').attr('data', j)
                 }
             })
         }
+        // 更改显示数
+        $('#table-view-sum').change(function() {
+            TabLimit()
+            setTableLimit()
+            socket.emits('User', {magess: {skip: 0,limit: TableLimit}})
+        })
+        setTableLimit()
+        // 写入用户信息表单
+        const userdatainnerHTML = (data)=>{
+            let a = new String()
+            let b = new String()
+            for (let j = 0; j < data.permissions.length; j++) {
+                let id = Index.WebCode(data.permissions[j])
+                let ys = Index.WebStyle(id)
+                let down = data.Parameter != undefined && data.Parameter[data.permissions[j]] != undefined ? data.Parameter[data.permissions[j]] : 0
+                a += '<span style="color:' + ys + ';padding-right: 1em;">' + id + '</span>'
+                b += '<span style="color:' + ys + ';padding-right: 1em;">' + down + '</span>'
+                if (j == data.permissions.length - 1) {
+                    document.getElementById('zsygyhsjxr').innerHTML += `<div class="table-ul table-ul-li" id="user-data-name-${data.id}"  ${Index.TypeTime(data.time) == false ? 'style="background-color: #F00222;color:#fff;"' : ''}><div class="table-li li-1"><input type="checkbox" class="click-on checkbox-li" data="${data.id}"></div><div class="table-li li-3"><span>${data.id}</span></div><div class="table-li li-3"><span>${data.key}</span></div><div class="table-li li-3"><span>${data.time}</span></div><div class="table-li li-2"><span>${Index.TypeTime(data.time) == true ? '有效' : '过期'}</span></div><div class="table-li li-4">${a}</div><div class="table-li li-3"><span>${data.RegisTime ? data.RegisTime : 'false'}</span></div><div class="table-li li-3"><span>${data.LoginIP != undefined ? data.LoginIP.split(':')[3] : 'false'}</span></div><div class="table-li li-4">${b}</div><div class="table-li li-3"><span style="color:${Index.TypeTime(data.time) == false ? '#fff;' : '#00B150;'}text-indent: 0;" data="${data.id}" class="admin-user-edit"><i class="fa fa-search-plus click-on"></i></span><span style="color: ${Index.TypeTime(data.time) == false ? '#fff;' : '#F44336;'}" data="${data.id}" class="admin-user-delete"><i class="fa fa-trash click-on"></i></span></div></div>`
+                }
+            }
+        }
+        // 点击弹出用户详细资料
+        const PopupUserData = ()=>{
+            $('#zsygyhsjxr .admin-user-edit').unbind()
+            $('#zsygyhsjxr .admin-user-edit').click(function(){
+                const name = $(this).attr('data')
+                let userdataJson = JSON.parse(sessionStorage['user-' + name])
+                // 弹出详情节点
+                const UserData = (data)=>{
+                    console.log(data)
+                    return `<div class="tab-data" id="PopupUserData-data-${name}"><div class="tab-data-name"><p>${name}</p><div class="tab-data-edit"><button style="background-color: #F44336;margin-right: 1em;" class="PopupUserData-on" data="${name}">确定</button><button style="background-color: #2196F3;" class="PopupUserData-off" data="${name}">取消</button></div></div><div class="damin-home-border"></div><div class="tab-data-body"><div class="tab-data-ul"><span>密码:<input placeholder="${data.key}" id="table-user-key-${name}"></span></div><div class="tab-data-ul"><span>有效期:<input class="li-4" placeholder="${data.time.split('-')[0]}" id="table-user-time-n-${name}"> -<input class="li-3" placeholder="${data.time.split('-')[1]}" id="table-user-time-y-${name}"> -<input class="li-3" placeholder="${data.time.split('-')[2]}" id="table-user-time-r-${name}"></span></div><div class="tab-data-ul" id="table-user-xzxk-${name}"><span>下载许可:<input type="checkbox" ${Index.ClikPerm(data.permissions, '588ku') == true ? 'checked="checked"' : ''} value="588ku">千库<input type="checkbox" ${Index.ClikPerm(data.permissions, '90sheji') == true ? 'checked="checked"' : ''} value="90sheji">90设计<input type="checkbox" ${Index.ClikPerm(data.permissions, '888pic') == true ? 'checked="checked"' : ''} value="888pic">包图</span></div><div class="tab-data-ul" id="table-user-xzs-${name}"><span>下载数:${typeof data.Parameter['588ku'] != 'undefined' ? `<input class="li-3" style="color: #2196F3;" placeholder="${data.Parameter['588ku']}" data="588ku">千库` : ''}${typeof data.Parameter['90sheji'] != 'undefined' ? `<input class="li-3" style="color: #F44336;" placeholder="${data.Parameter['90sheji']}" data="90sheji">90设计` : ''}${typeof data.Parameter['888pic'] != 'undefined' ? `<input class="li-3" style="color: #00B150;" placeholder="${data.Parameter['888pic']}" data="888pic">包图` : ''}</span></div></div></div>`
+                }
+                // 没有打开  打开
+                if($(`#PopupUserData-data-${name}`).attr('id') == undefined){
+                    $(UserData(userdataJson)).insertAfter(`#zsygyhsjxr #user-data-name-${name}`)
+                    setTimeout(()=>$(`#PopupUserData-data-${name}`).addClass('tab-data-on'), 300)
+                    // 确定
+                    // 修改用户信息
+                    $('.PopupUserData-on').unbind()
+                    $('.PopupUserData-off').unbind()
+                    $('.PopupUserData-on').click(function() {
+                        const data = $(this).attr('data')
+                        let userdataJson = JSON.parse(sessionStorage['user-' + data])
+                        let index = `#PopupUserData-data-${data}`
+                        let permissions = []
+                        let key = $(`${index} #table-user-key-${data}`).val()
+                        let time = `${$(`${index} #table-user-time-n-${data}`).val()}-${$(`${index} #table-user-time-y-${data}`).val()}-${$(`${index} #table-user-time-r-${data}`).val()}`
+                        userdataJson.key = key != '' ? key : userdataJson.key
+                        userdataJson.time = time != '--' ? time : userdataJson.time
+                        const xzxk = $(`${index} #table-user-xzxk-${data}`)
+                        for(let j of $(xzxk).find('input')){
+                            if($(j)[0].checked == true){
+                                permissions.push($(j).attr('value'))
+                            }
+                        }
+                        userdataJson.permissions = permissions
+                        let Parameter = new Object
+                        Parameter.permissions = permissions
+                        const xzs = $(`${index} #table-user-xzs-${data}`)
+                        for (let j of $(xzs).find('input')) {
+                            let id = $(j).attr('data')
+                            let sum = $(j).val()
+                            if (id != '') {
+                                Parameter[id] = sum != '' ? sum - '' : userdataJson.Parameter[id]
+                            }
+                        }
+                        Parameter.permissions = permissions
+                        userdataJson.Parameter = Parameter
+                        delete userdataJson._id
+                        socket.emits('UserEdit', {magess: userdataJson})
+                        socket.on('useredit-callback', (cdata)=>{
+                            if(cdata.magess == false){
+                                Index.Notification.To(`修改 ${data} 用户信息`, 'info', '修改失败')
+                            } else {
+                                Index.Notification.To(`修改 ${cdata.magess} 用户信息`, 'info', `${cdata.magess} 用户信息修改成功`)
+                            }
+                        })
+                    })
+                    // 取消
+                    $('.PopupUserData-off').click(() => {
+                        $(`#PopupUserData-data-${name}`).removeClass('tab-data-on')
+                        setTimeout(()=>$(`#PopupUserData-data-${name}`).remove(), 1000)
+                    })
+                }
+            })
+        }
+        // 接收用户信息
+        socket.on('user-callback', (data)=>{
+            if(data.magess == false){
+                Index.Notification.To('搜索结果', 'info', '没有找到结果')
+            }else{
+                // 先清空
+                document.getElementById('zsygyhsjxr').innerHTML = ''
+                // 遍历写入
+                for(let i = 0; i < data.magess.length; i++){
+                    const user = data.magess[i]
+                    // 存入本地存储
+                    sessionStorage['user-' + user.id] = JSON.stringify(user)
+                    if($(`#user-data-name-${user.id}`).attr('id') == undefined){
+                        userdatainnerHTML(user)
+                        // 绑定节点
+                        if(i == data.magess.length - 1){
+                            // 清空绑定
+                            $('#zsygyhsjxr .table-ul').unbind()
+                            // 写入弹出控件
+                            PopupUserData()
+                            // 删除单个
+                            $('.admin-user-delete').unbind()
+                            $('.admin-user-delete').click(function() {
+                                const userid = $(this).attr('data')
+                                PopupWindow.To(`删除账号 ${userid} ?`, (type)=>{
+                                    if(type == true){
+                                        socket.emits('DeleteUser', {magess: userid})
+                                        socket.on('deluser-callback', (data)=>{
+                                            if(data.magess == false){
+                                                Index.Notification.To('删除失败', 'error', '账号删除失败')
+                                            }else{
+                                                $(`#user-data-name-${data.magess}`).remove()
+                                                PopupWindow.Exit()
+                                            }
+                                        })
+                                    }
+                                })
+                            })
+                        }
+                    }
+                }
+            }
+        })
+        // 搜索
+        $('#admin-user-seacr').unbind()
+        $('#admin-user-seacr').click(function() {
+            const value = $('.admin-user-head-tj')[0].value
+            if(value == '已过期'){
+                socket.emits('GetUser', {magess: {"time": false}})
+            }else{
+                const val = $('#admin-user-seacr-text').val()
+                if(val != ''){
+                    if(value == '用户名'){
+                        socket.emits('GetUser', {magess: {"id": val}})
+                    }else 
+                    if(value == '创建时间'){
+                        socket.emits('GetUser', {magess: {"RegisTime": val}})
+                    }
+                }
+            }
+        })
+        // 新建用户
+        $('#installUser').unbind()
+        $('#installUser').click(function() {
+            PopupWindow.NewUser((data)=>{
+                socket.emits('NewUser', {magess: data})
+                socket.on('instuser-callback', function(data) {
+                    if(data.magess == true){
+                        PopupWindow.Exit()
+                        userdatainnerHTML(data)
+                    }else{
+                        Index.Notification.To('新建失败', 'error', '账号新建失败')
+                    }
+                })
+            })
+        })
+        // 删除多选
+        $('#deleteUser').unbind()
+        $('#deleteUser').click(()=>{
+            const checkboxArr = $('#zsygyhsjxr .checkbox-li')
+            let userArr = []
+            for (let i = 0; i < checkboxArr.length; i++) {
+                const id = checkboxArr[i]
+                if ($(id)[0].checked == true) {
+                    const userid = $(id).attr('data')
+                    userArr.push(userid)
+                }
+                if (i == checkboxArr.length - 1 && userArr.length != 0){
+                    PopupWindow.To(`删除 ${userArr.length} 个账号 ?`, (type)=>{
+                        if (type == true) {
+                            let ij = 0
+                            let ttpe = true
+                            for(let j of userArr){
+                                ij += 1
+                                socket.emits('DeleteUser', {magess: j})
+                                socket.on('deluser-callback', (data)=>{
+                                    if(data.magess == false){
+                                        ttpe = false
+                                        Index.Notification.To('删除失败', 'error', '账号删除失败')
+                                    }else{
+                                        $(`#user-data-name-${j}`).remove()
+                                    }
+                                    if(ij == userArr.length - 1 && ttpe == true){
+                                        PopupWindow.Exit()
+                                    }
+                                })
+                            }
+                        }
+                    })
+                }
+            }
+        })
+        // 选择全部
+        $('#admin-user-checkbox').unbind()
+        $('#admin-user-checkbox').click(function() {
+            const checkbox = document.getElementById('admin-user-checkbox').checked
+            const checkboxArr = $('#zsygyhsjxr .checkbox-li')
+            if(checkbox == true){
+                for(let i of checkboxArr){
+                    $(i)[0].checked = true
+                }
+            }else 
+            if(checkbox == false){
+                for(let i of checkboxArr){
+                    $(i)[0].checked = false
+                }
+            }
+        })
+        // 发送第一页
+        socket.emits('User', {magess: {skip: 0,limit: TableLimit}})
+    }
+
+    
+    // cookie管理
+    Admin['admin-cookie'] = (socket)=>{
+        let cookieType = Index.WebName($('.admin-cookie-head-tj')[0].value)
+        let CookieData = new Object
+        // 正在使用的下标
+        const CookieIndexOf = (name) => {
+            for(let i of CookieData){
+                if(i.id == name){
+                    return i.cookienNo
+                }
+            }
+        }
+        // 删除单选
+        const delCookie = () => {
+            $('#zscookiebflb .admin-cookie-delete').unbind()
+            $('#zscookiebflb .admin-cookie-delete').click(function(){
+                const id = $(this).attr('data') - ''
+                PopupWindow.To(`删除第 ${id} 个 ${$('.admin-cookie-head-tj')[0].value} cookie ?`, (type)=>{
+                    if(type == true){
+                        socket.emits('DelCookie', {magess:{"id":id, "name":cookieType}})
+                        socket.emits('GetCookieDate')
+                        socket.emits('GetCookie', {magess: cookieType})
+                        PopupWindow.Exit()
+                    }
+                })
+            })
+            // 设置为使用
+            $('#zscookiebflb .admin-cookie-set').unbind()
+            $('#zscookiebflb .admin-cookie-set').click(function(){
+                const id = $(this).attr('data') - ''
+                PopupWindow.To(`设置第 ${id} 个为 ${$('.admin-cookie-head-tj')[0].value} cookie ?`, (type)=>{
+                    if(type == true){
+                        socket.emits('SetCookie', {magess:{"id":cookieType, "cookienNo":id}})
+                        socket.on('SetCookie-callback', (data) => {
+                            if(data.magess == true){
+                                socket.emits('GetCookieDate')
+                                socket.emits('GetCookie', {magess: cookieType})
+                                PopupWindow.Exit()
+                            }else{
+                                Index.Notification.To('设置cookie失败', 'error', `设置第${id}个为${$('.admin-cookie-head-tj')[0].value}cookie失败`)
+                            }
+                        })
+                    }
+                })
+            })
+            // 更改cookie信息
+            $('#zscookiebflb .admin-cookie-edit').unbind()
+            $('#zscookiebflb .admin-cookie-edit').click(function(){
+                const id = $(this).attr('data') - ''
+                const cookie = $(`#table-cookie-name-${id} .admin-cookie-data`).val()
+                if(cookie.length != 0){
+                    PopupWindow.To(`确定修改第 ${id} 个 ${cookieType} 的cookie ?`, (type)=>{
+                        if(type == true){
+                            socket.emits('SetCookieData', {magess:{id:id,data:cookie,type:cookieType}})
+                            socket.on('SetCookieData-callback', (data) => {
+                                if(data.magess == true){
+                                    socket.emits('GetCookieDate')
+                                    socket.emits('GetCookie', {magess: cookieType})
+                                    PopupWindow.Exit()
+                                }else{
+                                    Index.Notification.To('修改cookie失败', 'error', `修改第 ${id} 个 ${cookieType} cookie失败`)
+                                }
+                            })
+                        }
+                    }) 
+                }else{
+                    Index.Notification.To('修改cookie失败', 'error', `请输入正确信息！！！不接受空输入！！！`)
+                }
+            })
+        }
+        // 写入cookie信息
+        const SetCookie = (data)=>{
+            document.getElementById('zscookiebflb').innerHTML += `<div class="table-ul" id="table-cookie-name-${data.id}"><div class="table-li li-1"><input type="checkbox" class="click-on checkbox-li" data="${data.id}"></div><div class="table-li li-2"><span>${Index.WebCode(data.obj)}</span></div><div class="table-li li-2"><span>${data.id}</span></div><div class="table-li li-7"><input class="admin-cookie-data" value="${data.data}"></div><div class="table-li li-3"><span style="color:#00B150;text-indent: 0;" data="${data.id}" class="admin-cookie-edit"><i class="fa fa-edit click-on"></i></span><span style="color: #F44336;" data="${data.id}" class="admin-cookie-delete"><i class="fa fa-trash click-on"></i></span><span style="color: #F44336;" data="${data.id}" class="admin-cookie-set"><i class="fa fa-check click-on"></i></span></div><div class="table-li li-2"><span>${CookieIndexOf(data.obj) == data.id ? '使用中' : '闲置'}<span></div></div>`
+        }
+        // 添加cookie
+        $('#installCookie').unbind()
+        $('#installCookie').click(function(){
+            PopupWindow.NewCookie((data) => {
+                const name = Index.WebName(data.name)
+                const cookie = data.data
+                socket.emits('NewCookie', {magess:{id:name, cookie:cookie}})
+                socket.on('inst-cookie-callback', (msg) => {
+                    if(msg.magess == true){
+                        socket.emits('GetCookieDate')
+                        socket.emits('GetCookie', {magess: cookieType})
+                        PopupWindow.Exit()
+                    }else
+                    if(msg.magess == false){
+                        Index.Notification.To('新建cookie失败', 'error', `新建${data.name}cookie失败`)
+                    }
+                })
+            })
+        })
+        // 请求cookie数据和详情
+        socket.emits('GetCookieDate')
+        socket.emits('GetCookie', {magess: cookieType})
+        // 接收到cookie基本数据
+        socket.on('cookie-callback', function(data) {
+            CookieData = data.magess
+            sessionStorage.CookieData = JSON.stringify(data.magess)
+        })
+        // 更改显示类型
+        $('.admin-cookie-head-tj').change(function() {
+            cookieType = Index.WebName($('.admin-cookie-head-tj')[0].value)
+            socket.emits('GetCookie', {magess: cookieType})
+        })
+        // 接收到cookie详细数据
+        socket.on('cookiearray-callback', function(data) {
+            document.getElementById('zscookiebflb').innerHTML = ''
+            for(let i = 0; i < data.magess.length; i ++){
+                SetCookie(data.magess[i])
+                if(i == data.magess.length-1){
+                    delCookie()
+                }
+            }
+        })
+        // 选择全部
+        $('#admin-cookie-checkbox').unbind()
+        $('#admin-cookie-checkbox').click(function() {
+            const checkbox = document.getElementById('admin-cookie-checkbox').checked
+            const checkboxArr = $('#zscookiebflb .checkbox-li')
+            if(checkbox == true){
+                for(let i of checkboxArr){
+                    $(i)[0].checked = true
+                }
+            }else 
+            if(checkbox == false){
+                for(let i of checkboxArr){
+                    $(i)[0].checked = false
+                }
+            }
+        })
+        // 删除多选cookie
+        $('#deleteCookie').unbind()
+        $('#deleteCookie').click(function(){
+            let oncookie = []
+            const checkboxArr = $('#zscookiebflb .checkbox-li')
+            for(let i = 0; i < checkboxArr.length; i ++){
+                const cookie = checkboxArr[i]
+                if($(cookie)[0].checked == true){
+                    oncookie.push($(cookie).attr('data') - '')
+                }
+                if(i == checkboxArr.length - 1 && oncookie.length != 0){
+                    PopupWindow.To(`删除 ${oncookie.length} 个 cookie ?`, (type)=>{
+                        if(type == true){
+                            for(let j = 0, k = true; j < oncookie.length; j ++){
+                                socket.emits('DelCookie', {magess:{"id":oncookie[j], "name":cookieType}})
+                                if(j == oncookie.length - 1){
+                                    socket.emits('GetCookie', {magess: cookieType})
+                                    PopupWindow.Exit()
+                                }
+                            }
+                        }
+                    })
+                }
+            }
+        })
+    }
+
+    // 页面加载完成
+    $().ready(()=>{
+        const socket = io(location.host == 'www.xivistudio.cn' ? location.host : location.host + ':88')
+        // 设置通知默认值
+        Index.Notification.Module({
+            icon:'/img/favicon.ico',
+            error:'/img/favicon.ico'
+        })
+        socket.on('connect', ()=>{
+            socket.emits = (Event,data)=>{
+                socket.emit('MagesEvent', {_id_: socket.id,event: Event,data: data})
+            }
+            $($('.admin-head-title-logo')[1]).hide()
+            $($('.admin-head-title-logo')[2]).hide()
+            socket.on('System', (data) => Index.Notification.To('服务器错误！！！', 'icon', data.error))
+            socket.on('reconnect', ()=> document.location.reload(true))
+            $('.admin-head-menu').unbind()
+            $('.admin-head-menu').click(()=>{
+                const ClassArray = ['admin-home', 'admin-user', 'admin-cookie']
+                const index = $('.admin-head-menu-body')
+                if ($(index).attr('on') == 'true') {
+                    $(index).removeClass('admin-head-menu-body-on')
+                    $(index).attr('on', 'false')
+                } else {
+                    $(index).addClass('admin-head-menu-body-on')
+                    $(index).attr('on', 'true')
+                    $('.admin-head-menu-body span').unbind()
+                    $('.admin-head-menu-body span').click(function() {
+                        const style = $(this).attr('data')
+                        const title = $('.admin-head-title-logo')
+                        Admin[style] && Admin[style](socket)
+                        for(let i of ClassArray){
+                            if(i == style){
+                                $('.' + i).attr('id', 'damin-on')
+                            }else{
+                                $('.' + i).attr('id', '')
+                            }
+                        }
+                        for(let i of title){
+                            if($(i).attr('data') == style){
+                                $(i).show()
+                            }else{
+                                $(i).hide()
+                            }
+                        }
+                    })
+                }
+            })
+            Admin['admin-home'](socket)
+        })
     })
+
+}

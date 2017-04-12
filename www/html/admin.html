@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>后台管理</title>
+	    <meta charset="UTF-8">
+        <meta name="renderer" content="webkit">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="img/favicon.ico" mce_href="favicon.ico" rel="icon" type="image/x-icon" /> 
+        <!-- 清除默认样式 -->
+        <link rel="stylesheet" href="./css/normalize.css">
+        <!-- awesome -->
+        <link rel="stylesheet" href="./css/awesome/css/font-awesome.min.css" rel="stylesheet">
+        <!-- css -->
+        <link rel="stylesheet" href="./css/style.css" id="LoginStyle">
+        <!-- module -->
+        <script src="./js/app/canvas.js"></script>
+        <script src="./js/app/socket.io.js"></script>
+        <script src="./js/app/jquery.js"></script>
+        <script src="./js/app/json2.js"></script>
+        <script src="./js/tools.js"></script>
+        <!-- main -->
+        <script src="./js/admin.js"></script>
+    </head>
+    <body>
+        <!-- 弹窗组件 -->
+        <div class="admin-PopupWindow">
+            <div class="admin-PopupWindow-home">
+                <div class="admin-PopupWindow-body">
+                    <div class="admin-PopupWindow-text">
+                        <p></p>
+                    </div>
+                    <div class="admin-PopupWindow-newuser">
+                        <span style="font-size:1.2em;line-height: 2em;">新建用户</span>
+                        <div class="damin-home-border"></div>
+                        <div class="damin-admin-PopupWindow-newuser-data">
+                            <input type="text" placeholder="用户名" class="admin-PopupWindow-newuser-name">
+                            <input type="text" placeholder="密码" class="admin-PopupWindow-newuser-key">
+                            <input type="text" placeholder="到期时间" class="admin-PopupWindow-newuser-time">
+                        </div>
+                        <div class="damin-admin-PopupWindow-newuser-qx">
+                            <span><input type="checkbox" data="588ku">千库</span>
+                            <span><input type="checkbox" data="90sheji">90设计</span>
+                            <span><input type="checkbox" data="888pic">包图</span>
+                        </div>
+                    </div>
+                    <div class="damin-PopupWindow-newcookie">
+                        <span style="font-size:1.2em;line-height: 2em;">新建Cookie</span>
+                        <div class="damin-home-border"></div>
+                        <div class="damin-admin-PopupWindow-newcookie-data">
+                            <select id="damin-admin-PopupWindow-newcookie-data-type">
+                                <option>千库</option>
+                                <option>90设计</option>
+                                <option>包图</option>
+                            </select>
+                            <input type="text" placeholder="输入cookie信息" class="admin-PopupWindow-newcookie-data">
+                        </div>
+                    </div>
+                    <div class="damin-home-border"></div>
+                    <div class="admin-PopupWindow-body-xz">
+                        <span><button style="background-color: #F44336;" data="ok">确认</button></span>
+                        <span><button style="background-color: #2196F3;" data="no">取消</button></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="admin-head">
+            <div class="admin-head-menu click-on">
+                <i class="fa fa-navicon"></i>
+            </div>
+            <div class="admin-head-menu-body">
+                <span class="click-on" data="admin-home"><i class="fa fa-cogs" style="color: #2196F3;"></i>系统配置</span>
+                <span class="click-on" data="admin-user"><i class="fa fa-user" style="color: #30cc7b;"></i>用户管理</span>
+                <span class="click-on" data="admin-cookie"><i class="fa fa-code" style="color: #ff9800;"></i>Cookie管理</span>
+            </div>
+            <!-- 模块名称 -->
+            <div class="damin-home-title admin-head-title-logo" data="admin-home">
+                <i class="fa fa-cogs" style="color: #2196F3;"></i>系统配置
+            </div>
+            <!-- 模块名称 -->
+            <div class="damin-home-title admin-head-title-logo" data="admin-user">
+                <i class="fa fa-user" style="color: #30cc7b;"></i>用户管理
+            </div>
+            <!-- 模块名称 -->
+            <div class="damin-home-title admin-head-title-logo" data="admin-cookie">
+                <i class="fa fa-code" style="color: #ff9800;"></i>Cookie管理
+            </div>
+        </div>
+        <div class="admin-body">
+            <!-- 首页  damin-on-->
+            <div class="admin-home" id="damin-on">
+                <!-- 重启 -->
+                <div class="System-Start click-on">
+                    <i class="fa fa-power-off"></i>
+                </div>
+                <!-- 首页数据 -->
+                <div class="admin-index-icon damin-home-connet admin-home-table">
+                    <div class="admin-index-icon-div">
+                        <div class="admin-index-icon-ico">
+                            <div class="admin-index-icon-ico-left" style="background-color: #30cc7b;">
+                                <i class="fa fa-download"></i>
+                            </div>
+                            <div class="admin-index-icon-ico-right">
+                                <span id="admin-index-dowmload">0</span>
+                                <p>在线数</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin-index-icon-div">
+                        <div class="admin-index-icon-ico">
+                            <div class="admin-index-icon-ico-left" style="background-color: #ff9800;">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <div class="admin-index-icon-ico-right">
+                                <span id="admin-index-user">0</span>
+                                <p>用户数</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin-index-icon-div">
+                        <div class="admin-index-icon-ico">
+                            <div class="admin-index-icon-ico-left" style="background-color: #2196F3;">
+                                <i class="fa fa-server"></i>
+                            </div>
+                            <div class="admin-index-icon-ico-right">
+                                <span id="admin-index-cache">0</span>
+                                <p>缓存数</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin-index-icon-div">
+                        <div class="admin-index-icon-ico">
+                            <div class="admin-index-icon-ico-left" style="background-color: #F44336;">
+                                <i class="fa fa-bug"></i>
+                            </div>
+                            <div class="admin-index-icon-ico-right">
+                                <span id="admin-index-bug">0</span>
+                                <p>错误数</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 服务器状态 -->
+                <div class="admin-index-server damin-home-connet admin-home-table">
+                    <!-- 服务器运行状态 -->
+                    <div class="admin-server-sueecr">
+                        <div class="admin-server-data">
+                            <div class="admin-server-data-li">
+                                <span class="admin-server-data-li-left">操作系统</span>
+                                <span class="admin-server-data-li-right" id="admin-index-operatingSystem"></span>
+                            </div>
+                            <div class="damin-home-border"></div>
+                            <div class="admin-server-data-li">
+                                <span class="admin-server-data-li-left">CPU架构</span>
+                                <span class="admin-server-data-li-right" id="admin-index-cpu"></span>
+                            </div>
+                            <div class="damin-home-border"></div>
+                            <div class="admin-server-data-li">
+                                <span class="admin-server-data-li-left">Node.Js版本</span>
+                                <span class="admin-server-data-li-right">V6.1.1</span>
+                            </div>
+                            <div class="damin-home-border"></div>
+                            <div class="admin-server-data-li">
+                                <span class="admin-server-data-li-left">内存总量</span>
+                                <span class="admin-server-data-li-right" id="admin-index-sumRam"></span>
+                            </div>
+                            <div class="damin-home-border"></div>
+                            <div class="admin-server-data-li">
+                                <span class="admin-server-data-li-left">内存可用总量</span>
+                                <span class="admin-server-data-li-right" id="admin-index-idleRam"></span>
+                            </div>
+                            <div class="damin-home-border"></div>
+                            <div class="admin-server-data-li">
+                                <span class="admin-server-data-li-left">运行时间</span>
+                                <span class="admin-server-data-li-right" id="admin-index-runTime"></span>
+                            </div>
+                        </div>
+                        <div class="admin-server-sueecr-body">
+                            <span>服务器配置</span>
+                            <div class="damin-home-border"></div>
+                            <div class="admin-server-space">
+                                <div class="admin-server-config">
+                                    HTTP端口<input type="text" id="server-config-httpPort">
+                                </div>
+                                <div class="admin-server-config">
+                                    WebSocket端口<input type="text" id="server-config-websocket">
+                                </div>
+                                <div class="admin-server-config">
+                                    Mongodb地址<input type="text" id="server-config-mongodb">
+                                </div>
+                                <div class="admin-server-config">
+                                    TCP端口<input type="text" id="server-config-tcpPort">
+                                </div>
+                                <div class="admin-server-config">
+                                    管理员登陆路径<input type="text" id="server-config-adminpath">
+                                </div>
+                                <div class="admin-server-config">
+                                    管理员账号<input type="text" id="server-config-adminname">
+                                </div>
+                                <div class="admin-server-config">
+                                    管理员密码<input type="text" id="server-config-adminkey">
+                                </div>
+                            </div>
+                            <div class="damin-home-border"></div>
+                            <div class="admin-server-config-on">
+                                <button id="admin-server-config-edit">修改</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 服务器运行日志 -->
+                    <div class="admin-server-log">
+                        <div class="damin-server-pace">
+                            <div class="admin-server-pace-div">
+                                <p class="admin-pace-new" style="color: #30cc7b;"></p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #ff9800;" class="admin-pace-old">0</span>
+                                <p>总数</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #2196F3;" class="admin-pace-code">0</span>
+                                <p>使用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #F44336;" class="admin-pace-map">0</span>
+                                <p>可用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #999;" class="admin-pace-large">0</span>
+                                <p>物理</p>
+                            </div>
+                        </div>
+                        <div class="damin-server-pace">
+                            <div class="admin-server-pace-div">
+                                <p class="admin-pace-new" style="color: #30cc7b;"></p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #ff9800;" class="admin-pace-old">0</span>
+                                <p>总数</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #2196F3;" class="admin-pace-code">0</span>
+                                <p>使用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #F44336;" class="admin-pace-map">0</span>
+                                <p>可用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #999;" class="admin-pace-large">0</span>
+                                <p>物理</p>
+                            </div>
+                        </div>
+                        <div class="damin-server-pace">
+                            <div class="admin-server-pace-div">
+                                <p class="admin-pace-new" style="color: #30cc7b;"></p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #ff9800;" class="admin-pace-old">0</span>
+                                <p>总数</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #2196F3;" class="admin-pace-code">0</span>
+                                <p>使用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #F44336;" class="admin-pace-map">0</span>
+                                <p>可用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #999;" class="admin-pace-large">0</span>
+                                <p>物理</p>
+                            </div>
+                        </div>
+                        <div class="damin-server-pace">
+                            <div class="admin-server-pace-div">
+                                <p class="admin-pace-new" style="color: #30cc7b;"></p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #ff9800;" class="admin-pace-old">0</span>
+                                <p>总数</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #2196F3;" class="admin-pace-code">0</span>
+                                <p>使用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #F44336;" class="admin-pace-map">0</span>
+                                <p>可用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #999;" class="admin-pace-large">0</span>
+                                <p>物理</p>
+                            </div>
+                        </div>
+                        <div class="damin-server-pace">
+                            <div class="admin-server-pace-div">
+                                <p class="admin-pace-new" style="color: #30cc7b;"></p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #ff9800;" class="admin-pace-old">0</span>
+                                <p>总数</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #2196F3;" class="admin-pace-code">0</span>
+                                <p>使用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #F44336;" class="admin-pace-map">0</span>
+                                <p>可用</p>
+                            </div>
+                            <div class="admin-server-pace-div">
+                                <span style="color: #999;" class="admin-pace-large">0</span>
+                                <p>物理</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 帐号管理 -->
+            <div class="admin-user">
+                <div class="admin-user-head">
+                    <div class="admin-user-head-set">
+                        <button style="background-color: #2196F3;" id="installUser">添加</button>
+                        <button style="background-color: #F44336;" id="deleteUser">删除</button>
+                    </div>
+                    <div class="admin-user-head-seacr">
+                        <select id="table-view-sum">
+                            <option>显示条数</option>
+                            <option>10</option>
+                            <option>30</option>
+                            <option>50</option>
+                            <option>100</option>
+                        </select>
+                        <select class="admin-user-head-tj">
+                            <option>用户名</option>
+                            <option>已过期</option>
+                            <option>创建时间</option>
+                        </select>
+                        <input type="text" placeholder="输入用户名搜索" id="admin-user-seacr-text">
+                        <button style="background-color: #00B150;" id="admin-user-seacr">搜索</button>
+                    </div>
+                </div>
+                <div class="admin-user-table">
+                    <div class="table-ul">
+                        <div class="table-li li-1">
+                            <input type="checkbox" class="click-on" id="admin-user-checkbox">
+                        </div>
+                        <div class="table-li li-3">
+                            <span>账号</span>
+                        </div>
+                        <div class="table-li li-3">
+                            <span>密码</span>
+                        </div>
+                        <div class="table-li li-3">
+                            <span>有效期</span>
+                        </div>
+                        <div class="table-li li-2">
+                            <span>类型</span>
+                        </div>
+                        <div class="table-li li-4">
+                            <span>下载许可</span>
+                        </div>
+                        <div class="table-li li-3">
+                            <span>创建时间</span>
+                        </div>
+                        <div class="table-li li-3">
+                            <span>登陆IP</span>
+                        </div>
+                        <div class="table-li li-4">
+                            <span>下载数</span>
+                        </div>
+                        <div class="table-li li-3">
+                            <span>操作</span>
+                        </div>
+                    </div>
+                    <div class="table-ul-data" id="zsygyhsjxr">
+                    </div>
+                </div>
+                <!-- 下方选择切换 -->
+                <div class="table-magnass">
+                </div>
+            </div>
+            <!-- cookie管理 -->
+            <div class="admin-cookie">
+                <div class="admin-user-head">
+                    <div class="admin-user-head-set">
+                        <button style="background-color: #2196F3;" id="installCookie">添加</button>
+                        <button style="background-color: #F44336;" id="deleteCookie">删除</button>
+                    </div>
+                    <div class="admin-user-head-seacr">
+                        <select class="admin-cookie-head-tj">
+                            <option>千库</option>
+                            <option>90设计</option>
+                            <option>包图</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="admin-user-table">
+                    <div class="table-ul">
+                        <div class="table-li li-1">
+                            <input type="checkbox" class="click-on" id="admin-cookie-checkbox">
+                        </div>
+                        <div class="table-li li-2">
+                            <span>类型</span>
+                        </div>
+                        <div class="table-li li-2">
+                            <span>序号</span>
+                        </div>
+                        <div class="table-li li-7">
+                            <span>cookie</span>
+                        </div>
+                        <div class="table-li li-3">
+                            <span>操作</span>
+                        </div>
+                        <div class="table-li li-2">
+                            <span>状态</span>
+                        </div>
+                    </div>
+                    <div class="table-ul-data" id="zscookiebflb"> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

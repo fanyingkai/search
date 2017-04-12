@@ -20,7 +20,7 @@ let app = {
                 "User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36"
             }
         }, (typeof from !== 'undefined' && type == 'POST') ? from : undefined, (back, head) => {
-            callback(back, head)
+            callback && callback(back, head)
         })      
     },
     Server: (options, from, callback) => {
@@ -32,8 +32,8 @@ let app = {
                 bufLength += data.length
             })
             response.on('end', () => {
-                let chunkAll = Buffer.concat(arrBuf, bufLength)
-                callback(chunkAll, response.headers)
+                const hb = Buffer.concat(arrBuf, bufLength)
+                callback && callback(hb, response.headers)
             })
             req.on('error', (e) => {
                 console.log(e.message)
