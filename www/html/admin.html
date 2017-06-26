@@ -14,7 +14,6 @@
         <!-- css -->
         <link rel="stylesheet" href="./css/style.css" id="LoginStyle">
         <!-- module -->
-        <script src="./js/app/canvas.js"></script>
         <script src="./js/app/socket.io.js"></script>
         <script src="./js/app/jquery.js"></script>
         <script src="./js/app/json2.js"></script>
@@ -23,6 +22,14 @@
         <script src="./js/admin.js"></script>
     </head>
     <body>
+        <!-- 帐号列表 -->
+        <!--  install-user-list-on -->
+        <div class="install-user-list">
+            <div class="install-user-body">
+                <button id="install-user-body-exit"><i class="fa fa-close"></i></button>
+                <div class="install-user-body-list" id="install-user-body-list"></div>
+            </div>
+        </div>
         <!-- 弹窗组件 -->
         <div class="admin-PopupWindow">
             <div class="admin-PopupWindow-home">
@@ -42,6 +49,28 @@
                             <span><input type="checkbox" data="588ku">千库</span>
                             <span><input type="checkbox" data="90sheji">90设计</span>
                             <span><input type="checkbox" data="888pic">包图</span>
+                            <span><input type="checkbox" data="58pic">千图</span>
+                        </div>
+                    </div>
+                    <div class="admin-PopupWindow-newuserPush">
+                        <span style="font-size:1.2em;line-height: 2em;">批量新建用户</span>
+                        <div class="damin-home-border"></div>
+                        <div class="damin-admin-PopupWindow-newuser-data">
+                            <input type="text" placeholder="到期时间" class="admin-PopupWindow-newuserPush-time">
+                            <input type="text" placeholder="创建条数" class="admin-PopupWindow-newuserPush-sum">
+                        </div>
+                        <div class="damin-admin-PopupWindow-newuserPush-qx">
+                            <span><input type="checkbox" data="588ku">千库</span>
+                            <span><input type="checkbox" data="90sheji">90设计</span>
+                            <span><input type="checkbox" data="888pic">包图</span>
+                            <span><input type="checkbox" data="58pic">千图</span>
+                        </div>
+                        <span style="font-size:1.2em;line-height: 2em;">下载限制</span>
+                        <div class="admin-admin-PopupWindow-newuserPush-csxz">
+                            <input placeholder="千库" data="588ku">
+                            <input placeholder="90设计" data="90sheji">
+                            <input placeholder="包图" data="888pic">
+                            <input placeholder="千图" data="58pic">
                         </div>
                     </div>
                     <div class="damin-PopupWindow-newcookie">
@@ -52,6 +81,7 @@
                                 <option>千库</option>
                                 <option>90设计</option>
                                 <option>包图</option>
+                                <option>千图</option>
                             </select>
                             <input type="text" placeholder="输入cookie信息" class="admin-PopupWindow-newcookie-data">
                         </div>
@@ -322,6 +352,7 @@
                 <div class="admin-user-head">
                     <div class="admin-user-head-set">
                         <button style="background-color: #2196F3;" id="installUser">添加</button>
+                        <button style="background-color: #00b150;" id="installUserPush">批量添加</button>
                         <button style="background-color: #F44336;" id="deleteUser">删除</button>
                     </div>
                     <div class="admin-user-head-seacr">
@@ -393,6 +424,7 @@
                             <option>千库</option>
                             <option>90设计</option>
                             <option>包图</option>
+                            <option>千图</option>
                         </select>
                     </div>
                 </div>

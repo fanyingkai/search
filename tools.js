@@ -34,6 +34,7 @@ const GetTime = () => {
     return `${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`
 }
 
+
 // 判断时间过期
 const TypeTime = function(time){
     const myDate = new Date()
@@ -75,7 +76,7 @@ const PermName = function(text) {
 const SpaceDev = () => {
     const name = {"new_space":'新生代', "old_space":'老生代', "code_space":'程序空间', "map_space":'映射空间', "large_object_space":'大对象空间'}
     const space = v8.getHeapSpaceStatistics()
-    const add = (space_i) => console.AddLog(`
+    const add = (space_i) => console.log(`
         [   ${name[space_i.space_name]} ===>>  总数： ${space_i.space_size}  使用： ${space_i.space_used_size}  可用： ${space_i.space_available_size}   物理： ${space_i.physical_space_size}   ]
     `)
     for(let space_i of space){
@@ -86,21 +87,42 @@ const SpaceDev = () => {
 
 // 添加日志动作
 const AddLog = () => {
-    global.console.__proto__.AddLog = (data) => {
-        fs.appendFile(__dirname + _Index_.Config.log, `${GetTime()}   ${data}${os.EOL}`, (err) => {
-            err && console.log(err)
+    const log = (path, data) => {
+        fs.open(path, 'r+', (err, fd) => {
+            fs.stat(path, (err, stats) => {
+                if(err){
+                    return console.info(err)
+                }else{
+                    if(stats.size > 100000){
+                        fs.writeFile(path, '',  (err) => {
+                            if(err){
+                                return console.info(err)
+                            }else{
+                                fs.close(fd, (err) => {
+                                     if (err){
+                                        console.info(err)
+                                     } 
+                                })
+                            }
+                        })
+                    }
+                    fs.appendFile(path, `${GetTime()}    ${data}${os.EOL}`, (err) => {
+                        if(err){
+                            return console.info(err)
+                        }else{
+                            fs.close(fd, (err) => {
+                                if(err){
+                                    console.info(err)
+                                } 
+                            })
+                        }
+                   })
+                }
+            })
         })
     }
-}
-
-
-// 添加错误日志
-const AddError = () => {
-    global.console.__proto__.AddError = (data) => {
-        fs.appendFile(__dirname + _Index_.Config.error, `[===>>> ${GetTime()} >>> ${data} <<<===] ${os.EOL}`, (err) => {
-            err && console.log(err)
-        })
-    }
+    global.console.error = (data) => log(__dirname + _Index_.Config.error, data)
+    global.console.log = (data) => log(__dirname + _Index_.Config.log, data)
 }
 
 
@@ -147,7 +169,6 @@ module.exports = {
     GetTime:GetTime,
     TypeTime:TypeTime,
     AddLog:AddLog,
-    AddError:AddError,
     nubmer:nubmer,
     PermName:PermName
 }

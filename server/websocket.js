@@ -24,7 +24,7 @@ module.exports = (component, Socket_Callback) => {
     // 下载计数
     ModuleIndex['DownloadCount'] = (socket, data) => {
         Mongo.user.find({"id": data.magess.name }).toArray( (err, docs) => {
-            err && console.AddError(err)
+            err && console.error(err)
             if(docs.length == 1){
                 let doc = docs[0]
                 doc.Parameter[data.magess.id] = doc.Parameter[data.magess.id] + 1
@@ -44,7 +44,7 @@ module.exports = (component, Socket_Callback) => {
         const name = data.magess.name
         const key = (data.magess.type == true) ? component.decrypt(data.magess.pass) : data.magess.pass
         Mongo.user.find({id:name, key:key}).toArray( (err, docs) => {
-            err && console.AddError(err)
+            err && console.error(err)
             if(docs.length != 0 && global._Index_.UserTag[name] == undefined){
                 let doc = docs[0]
                 if(doc.time != false && component.TypeTime(doc.time) == true){
@@ -66,7 +66,7 @@ module.exports = (component, Socket_Callback) => {
                     doc.time = false
                     Mongo.user.updateOne({"id": doc.id}, {$set: doc})
                 }
-				if(doc.Parameter == undefined){
+                if(doc.Parameter == undefined){
 					doc.Parameter = new Object
 					doc.Parameter.Time = () => {
 						let date = new Date().getDate()
@@ -75,19 +75,19 @@ module.exports = (component, Socket_Callback) => {
 					for(let id of doc.permissions){
 						doc.Parameter[id] = 0
 					}
-					doc.LoginIP = socket.handshake.address
-					Mongo.user.updateOne({"id": doc.id}, {$set: doc})
 				}
 				if(doc.Limit == undefined || doc.Limit != undefined && doc.Limit['588ku'] == 0){
 					doc.Limit = new Object
-					for(let i = 0; i < doc.permissions.length; i ++){
-						let name = doc.permissions[i]
-						doc.Limit[name] = (name == '888pic') ? 15 : 50
-						if(i == doc.permissions.length-1){
-							Mongo.user.updateOne({"id": doc.id}, {$set: doc})
-						}
-					}
+                    for(let i = 0; i < doc.permissions.length; i++){
+                        let name = doc.permissions[i]
+                        doc.Limit[name] = (name == '888pic') ? 15 : 50
+                        if(i == doc.permissions.length -1){
+                            Mongo.user.updateOne({"id": doc.id}, {$set: doc})
+                        }
+                    }
 				}
+                doc.LoginIP = socket.handshake.address
+				Mongo.user.updateOne({"id": doc.id}, {$set: doc})
             }else{
                 socket.emit('login-callback', {magess: false})
             }
@@ -108,13 +108,13 @@ module.exports = (component, Socket_Callback) => {
             socket.emit('GetServerDate_callback', {magess:data})
         }
         Mongo.user.count({}, (err, udocs) => {
-            err && console.AddError(err)
+            err && console.error(err)
             const user = (err == undefined) ? udocs : 0
             Mongo.cache.count({}, (err, cdocs) => {
-                err && console.AddError(err)
+                err && console.error(err)
                 const cache = (err == undefined) ? cdocs : 0
                 Mongo.data.find({}).toArray((err, ddocs) => {
-                    err && console.AddError(err)
+                    err && console.error(err)
                     SystemData({
                         user:user,
                         cache:cache,
@@ -126,7 +126,7 @@ module.exports = (component, Socket_Callback) => {
     }
 
     // 修改配置
-    ModuleIndex['EditConfig'] = (socket, data) => fs.writeFile(_Index_.RootPath + '/config.json', JSON.stringify(data.magess),  (err) => console.AddError(err))
+    ModuleIndex['EditConfig'] = (socket, data) => fs.writeFile(_Index_.RootPath + '/config.json', JSON.stringify(data.magess),  (err) => console.error(err))
 
     // 重启进程
     ModuleIndex['RestartWorker'] = (socket, data) => {
@@ -158,12 +158,20 @@ module.exports = (component, Socket_Callback) => {
     // 修改密码
     ModuleIndex['ChangePassword'] = (socket, data) => {
         const user = data.magess
-        Mongo.user.updateOne({ "id": user.username}, {$set: {"id":user.username,"key":user.password,"permissions":user.permissions,time:user.time}}, (err, result) => {
-            if(result.result.n == 1){
-                socket.emit('edituserkey-callback', {magess: true})
-            }else 
-            if(result.result.n == 0){
-                socket.emit('edituserkey-callback', {magess: false})
+        Mongo.user.find({"id": user.username}).toArray((err, docs) => {
+            if(err){
+                return console.log(err)
+            }   
+            if(docs.length > 0){
+                docs[0].key = user.password
+                Mongo.user.updateOne({ "id": user.username}, {$set: docs[0]}, (err, result) => {
+                    if(result.result.n == 1){
+                        socket.emit('edituserkey-callback', {magess: true})
+                    }else 
+                    if(result.result.n == 0){
+                        socket.emit('edituserkey-callback', {magess: false})
+                    }
+                })
             }
         })
     }
@@ -177,7 +185,7 @@ module.exports = (component, Socket_Callback) => {
         const Key = (ClientSearch[socketID].key != undefined) ? component.decrypt(ClientSearch[socketID].key) : 'false'
         const EmitSearch = () => {
             Mongo.cache.find({"id": Search}).toArray((err, docs) => {
-                err && console.AddError(err)
+                err && console.error(err)
                 var Cache = false
                 if(docs.length == 1){
                     const CacheData = docs[0]
@@ -190,7 +198,7 @@ module.exports = (component, Socket_Callback) => {
             })
         }
         Mongo.user.find({id:UserName, key:Key}).toArray((err, docs) => {
-            err && console.AddError(err)
+            err && console.error(err)
             if(docs.length != 0){
                 const UserData = docs[0]
                 if(UserData.Parameter.Time == Time()){
@@ -205,7 +213,7 @@ module.exports = (component, Socket_Callback) => {
 						UserData.Parameter[id] = 0
 					}
 					Mongo.user.updateOne({'id':UserData.id}, {$set:UserData}, (err) => {
-                        err && console.AddError(err)
+                        err && console.error(err)
                         EmitSearch()
                     }) 
 				} 
@@ -241,7 +249,7 @@ module.exports = (component, Socket_Callback) => {
     ModuleIndex['UserEdit'] = (socket, data) => {
         const user = data.magess
         Mongo.user.updateOne({"id": user.id}, {$set: user}, (err, result) => {
-            err && console.AddError(err)
+            err && console.error(err)
             if(result.result.n == 1){
                 socket.emit('useredit-callback', {magess:user.id})
             }else
@@ -255,7 +263,7 @@ module.exports = (component, Socket_Callback) => {
     ModuleIndex['GetCookie'] = (socket, data) => {
         // 查询cookie信息
         Mongo.cookieArray.find({"obj": data.magess}).toArray( (err,docs) => {
-            err && console.AddError(err)
+            err && console.error(err)
             // 找到cookie信息并发送
             if(docs.length != 0){
                 socket.emit('cookiearray-callback', {magess: docs})
@@ -282,7 +290,7 @@ module.exports = (component, Socket_Callback) => {
         const id = data.magess.id
         const name = data.magess.name
         Mongo.cookieArray.find({"obj": name}).toArray( (err,docs) => {
-            err && console.AddError(err)
+            err && console.error(err)
             if(docs.length != 0){
                 for(let i = 0, j = 0; i < docs.length; i ++){
                     const cookie = docs[i]
@@ -294,7 +302,7 @@ module.exports = (component, Socket_Callback) => {
                     }
                     if(i == docs.length-1){
                         Mongo.cookie.find({"id": name}).toArray((err, docs) => {
-                            err && console.AddError(err)
+                            err && console.error(err)
                             docs[0].sum = docs.length - 1
                             Mongo.cookie.updateOne({"id": name}, {$set: docs[0]})
                         })
@@ -311,7 +319,7 @@ module.exports = (component, Socket_Callback) => {
         Mongo.cookie.find({"id":id}).toArray((err, docs) => {
             docs[0].cookienNo = cookienNo
             Mongo.cookie.updateOne({"id":id}, {$set: docs[0]}, (err, result) => {
-                err && console.AddError(err)
+                err && console.error(err)
                 if(result.result.n == 1){
                     socket.emit('SetCookie-callback', {magess: true})
                 }else 
@@ -326,7 +334,7 @@ module.exports = (component, Socket_Callback) => {
     ModuleIndex['GetCookieDate'] = (socket, data) => {
         // 查询cookie信息
         Mongo.cookie.find().toArray( (err, docs) => {
-            err && console.AddError(err)
+            err && console.error(err)
             // 找到cookie信息并发送
             if(docs.length != 0){
                 socket.emit('cookie-callback', {magess: docs})
@@ -339,6 +347,22 @@ module.exports = (component, Socket_Callback) => {
         const user = data.magess
         Mongo.user.find({ "id": user.id}).toArray((err, docs)=>{
             if(docs.length == 0){
+                if(user.Parameter == undefined){
+					user.Parameter = new Object
+					user.Parameter.Time = () => {
+						let date = new Date().getDate()
+						return (date >= 0 && date <= 9) ? `0${date}` : date
+					}
+					for(let id of user.permissions){
+						user.Parameter[id] = 0
+					}
+				}
+				if(user.Limit == undefined || user.Limit != undefined && user.Limit['588ku'] == 0){
+					user.Limit = new Object
+					for(let name of user.permissions){
+						user.Limit[name] = (name == '888pic') ? 15 : 50
+					}
+				}
                 Mongo.user.insertMany([{
                     id:user.id,
                     key:user.key,
@@ -364,7 +388,7 @@ module.exports = (component, Socket_Callback) => {
     // 删除用户
     ModuleIndex['DeleteUser'] = (socket, data) => {
         Mongo.user.deleteOne({"id": data.magess}, (err,result) => {
-            err && console.AddError(err)
+            err && console.error(err)
             if(result.result.n == 1){
                 socket.emit('deluser-callback', {magess: data.magess})
             }else 
@@ -379,12 +403,12 @@ module.exports = (component, Socket_Callback) => {
         const cookie = data.magess
         // 查询出cookie信息
         Mongo.cookie.find({"id": cookie.id}).toArray( (err, docs) => {
-            err && console.AddError(err)
+            err && console.error(err)
             if(docs.length == 1){
                 let newdocs = docs[0]
                 newdocs.sum = newdocs.sum + 1
                 Mongo.cookie.updateOne({"id": cookie.id}, {$set: newdocs}, (err, result) => {
-                    err && console.AddError(err)
+                    err && console.error(err)
                     if(result.result.n != 0){
                         Mongo.cookieArray.insertMany([{"id": newdocs.sum,"name": "cookie","obj": cookie.id,"data": cookie.cookie}], (err,result) => {
                             if(result.result.n == 1){
@@ -407,7 +431,7 @@ module.exports = (component, Socket_Callback) => {
     ModuleIndex['UpdataCookie'] = (socket, data) => {
         const age = {"id": data.magess.id,"name": "cookie","obj": data.magess.obj,"data": data.magess.data,"user":data.magess.user}
         Mongo.cookieArray.updateOne({"id": age.id,"name": age.name,"obj": age.obj}, {$set: age}, (err,result) => {
-            err && console.AddError(err)
+            err && console.error(err)
             if(result.result.n != 0){
                 socket.emit('upcookie-callback', {magess: true})
             }else{

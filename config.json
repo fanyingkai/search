@@ -1,14 +1,1 @@
-{
-    "tcpPort":"8080",
-    "httpPort":"85",
-    "mongodb":"mongodb://127.0.0.1:3306/db",
-    "log":"/Node.log",
-    "websocket":"88",
-    "error":"/Error.log",
-    "admin":{
-        "name":"AdminRoot",
-        "key":"pushkey888"
-    },
-    "adminpath":"/admin/xivi",
-    "index":"47.89.27.13"
-}
+{"tcpPort":"8080","httpPort":"81","mongodb":"mongodb://localhost:3306/Index","log":"/Node.log","websocket":"82","error":"/Error.log","admin":{"name":"smc1217","key":"psy0526"},"adminpath":"/admin/Administrators","index":"47.52.43.163"}

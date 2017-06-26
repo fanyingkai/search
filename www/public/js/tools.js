@@ -1,14 +1,3 @@
-// Contact GitHub API Training Shop Blog About
-// © 2017 GitHub, Inc. Terms Privacy Security Status Help
-// Skip to content
-// This repository
-// @xivistudios
-// xivistudios/gulp
-// Branch: master Find file Copy pathgulp/local/public/js/index.js
-// @xivistudios xivistudios Panda
-// @xivistudios www.github.com//xivistudios/gulp
-// RawBlameHistory
-
 if (typeof Index === 'object') {
 
     // 无法运行  Index函数已被沾染
@@ -38,8 +27,11 @@ if (typeof Index === 'object') {
             if(text.search(/90sheji/i) >= 0){
                 return '90sheji'
             }else 
-            if (text.search(/888pic.com/i) >= 0){
+            if(text.search(/888pic.com/i) >= 0){
                 return '888pic'
+            }else
+            if(text.search(/58pic.com/i) >= 0){
+                return '58pic'
             }
         }
         // 转义网站简码
@@ -47,7 +39,8 @@ if (typeof Index === 'object') {
             return ({
                 '588ku': '千库',
                 '90sheji': '90设计',
-                '888pic': '包图'
+                '888pic': '包图',
+                '58pic' : '千图'
             })[name]
         }
         // 转义网站名称
@@ -55,7 +48,8 @@ if (typeof Index === 'object') {
             return ({
                 '千库': '588ku',
                 '90设计': '90sheji',
-                '包图': '888pic'
+                '包图': '888pic',
+                '千图': '58pic'
             })[name]
         }
         var ClikPerm = function(permissions, name) {
@@ -65,12 +59,14 @@ if (typeof Index === 'object') {
                 }
             }
         }
+        var LSJ = {ToUnicode:function(k){for(var i=0,t=[];i<k.length;i++){t.push(k.charCodeAt(i));if(i==k.length-1){return JSON.stringify(t);}}},ToString:function(j){var k=JSON.parse(j);for(var i=0,t='';i<k.length;i++){t+=String.fromCharCode(k[i]);if(i==k.length-1){return t;}}}}
         // 网站所属颜色
         var WebStyle = function(name) {
             return ({
                 '千库': '#2196F3',
                 '90设计': '#F44336',
-                '包图': '#00B150'
+                '包图': '#00B150',
+                '千图': '#F00222'
             })[name]
         }
         // 判断时间过期
@@ -243,7 +239,8 @@ if (typeof Index === 'object') {
             WebStyle: WebStyle,
             ClikPerm: ClikPerm,
             GetTime: GetTime,
-            WebName: WebName
+            WebName: WebName,
+            LSJ: LSJ
         }
     }
 

@@ -21,11 +21,13 @@ const start = () => {
             Pcallback({response:Mback[0],url:Mback[1],snt:Mback[2],title:Mback[3]}) 
         }
     }
+    let EmitMsg = new Object()
+    global._Index_.RootEvent.on('TCPEMIT', (data) => EmitMsg(data))
     // 启动服务
     const TcpServer = new net.createServer((connection) => {
         // 错误或断开
         connection.on('error', () => setTimeout(() => {
-            console.AddError('TCP错误或断开')
+            console.error('TCP错误或断开')
             TcpServer.close()
             TcpServer.listen(global._Index_.Config.tcpPort)
         }, 2000))
@@ -36,13 +38,13 @@ const start = () => {
         // 接收到消息
         connection.on('data', (data) => hdb.addBuffer(data))
         // 发送消息
-        global._Index_.RootEvent.on('TCPEMIT', (data) => {
+        EmitMsg = (data) => {
             const SearchString = JSON.stringify(data)
             const packet = new Buffer(4 + Buffer.byteLength(SearchString))
             packet.writeUInt32BE(Buffer.byteLength(SearchString), 0)
             packet.write(SearchString, 4)
             connection.write(packet)
-        })
+        }
         // 递交事件循环
         hdb.on('packet', (packet) => global._Index_.RootEvent.emit('TCPDATA', packet.slice(4).toString()))
     })
@@ -50,7 +52,7 @@ const start = () => {
     TcpServer.listen(_Index_.Config.tcpPort)
     // 服务器启动错误
     TcpServer.on('error', (data) => {
-        console.AddError('TCP服务器启动错误 错误码:' + data.code)
+        console.error('TCP服务器启动错误 错误码:' + data.code)
         if(data.code == 'EADDRINUSE'){
             setTimeout(() => TcpServer.listen(_Index_.Config.tcpPort), 2000)
         }
